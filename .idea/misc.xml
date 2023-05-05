@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/cj-geochat-ability-util/pom.xml" />
+        <option value="$PROJECT_DIR$/cj-geochat-ability-swagger/pom.xml" />
+        <option value="$PROJECT_DIR$/cj-geochat-ability-api/pom.xml" />
+        <option value="$PROJECT_DIR$/cj-geochat-ability-config/pom.xml" />
+        <option value="$PROJECT_DIR$/cj-geochat-ability-eureka/pom.xml" />
+        <option value="$PROJECT_DIR$/cj-geochat-ability-feign/pom.xml" />
+        <option value="$PROJECT_DIR$/cj-geochat-ability-mybatis/pom.xml" />
+        <option value="$PROJECT_DIR$/cj-geochat-ability-redis/pom.xml" />
+        <option value="$PROJECT_DIR$/cj-life-ability-minio/pom.xml" />
+        <option value="$PROJECT_DIR$/cj-geochat-ability-elasticsearch/pom.xml" />
+        <option value="$PROJECT_DIR$/cj-geochat-ability-oauth2-common/pom.xml" />
+        <option value="$PROJECT_DIR$/cj-geochat-ability-oauth2-server/pom.xml" />
+        <option value="$PROJECT_DIR$/cj-geochat-ability-oauth2-ultimate/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="17" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>

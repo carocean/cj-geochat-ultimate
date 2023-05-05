@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>cj.geochat</groupId>
+        <artifactId>cj-geochat-ultimate</artifactId>
+        <!--不要指定为snapshots版。只指定正式版，会依据父pom的环境而变化-->
+        <version>1.0.0</version>
+        <!--        <relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
+    </parent>
+    <artifactId>cj-geochat-ability-api</artifactId>
+    <name>cj-geochat-ability-api</name>
+    <packaging>jar</packaging>
+    <!--此处不定义版本将自动以父pom的版本为版本，可以参考spring包的配置-->
+    <description>cj-geochat-ability-api</description>
+    <properties>
+        <java.version>17</java.version>
+        <cj.geochat.ability.util.version>1.0.0</cj.geochat.ability.util.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cj.geochat</groupId>
+            <artifactId>cj-geochat-ability-util</artifactId>
+            <version>${cj.geochat.ability.util.version}</version>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

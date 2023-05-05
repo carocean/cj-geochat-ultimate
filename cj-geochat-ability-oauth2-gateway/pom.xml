@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>cj.geochat</groupId>
+        <artifactId>cj-geochat-ultimate</artifactId>
+        <version>1.0.0</version>
+    </parent>
+    <groupId>cj.geochat</groupId>
+    <artifactId>cj-geochat-ability-oauth2-gateway</artifactId>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <cj-life-ability-oauth2-ultimate.version>1.0.0</cj-life-ability-oauth2-ultimate.version>
+        <cj-life-ability-redis.version>1.0.0</cj-life-ability-redis.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>cj.geochat</groupId>
+            <artifactId>cj-geochat-ability-oauth2-ultimate</artifactId>
+            <version>${cj-life-ability-oauth2-ultimate.version}</version>
+        </dependency>
+        <dependency>
+            <!--
+            问题：dns在mac m1上无法解析，网关与redis依赖的netty在mac aarch_64芯片（m2/m1)上冲突。
+            spring-boot-starter-actuator这也是造成冲突的原因，它依赖的包哪些引起了冲突不清楚
+            但能确定的是它仅在项目采用reactor机制时才会导致冲突，这一般就是使用webFlux(gateway依赖了webFlux)
+            因此将此包排除。排除actuator使网关在运行时失去了动态修改配置的能力
+            -->
+            <groupId>cj.geochat</groupId>
+            <artifactId>cj-geochat-ability-config</artifactId>
+            <type>pom</type>
+            <version>1.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-actuator</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>cj.geochat</groupId>
+            <artifactId>cj-geochat-ability-redis</artifactId>
+            <version>${cj-life-ability-redis.version}</version>
+        </dependency>
+        <dependency>
+            <!--
+            问题：网关与redis依赖的netty在mac aarch_64芯片（m2/m1)上冲突！dns在mac m1上无法解析
+            网关依赖层级：
+            spring-boot-starter-webflux3.0.6 ->
+            spring-boot-starter-reactor-netty3.0.6
+            -> reactor-netty-http 1.1.6
+            问题出在：reactor-netty-http 1.1.6中使用的netty版虽然是最新的netty4.1.91版，但其dns解析包仅有：
+            netty-resolver-dns-native-macos:osx86_64以及linux,不支持arm即苹果的m1,m2芯片,
+            因此在mac m1,m2芯片上会导致dns解析不了
+            -->
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-gateway</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.netty</groupId>
+                    <artifactId>netty-resolver-dns-native-macos</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-oauth2-client</artifactId>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
