@@ -5,21 +5,18 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.0.6</version>
+        <version>3.1.0</version>
 <!--                <relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
     </parent>
     <groupId>cj.geochat</groupId>
     <artifactId>cj-geochat-ultimate</artifactId>
     <packaging>pom</packaging>
-    <version>${cj.geochat.ability.project.version}</version>
+    <version>1.0.0</version>
     <name>cj-geochat-ultimate</name>
     <description>cj-geochat-ultimate</description>
     <properties>
         <java.version>17</java.version>
-        <cj.geochat.ability.project.version>1.0.0-SNAPSHOT</cj.geochat.ability.project.version>
-        <spring-cloud.version>2022.0.2</spring-cloud.version>
-        <spring-security-bom.version>6.0.3</spring-security-bom.version>
-        <spring-security-oauth2-authorization-server.version>1.0.2</spring-security-oauth2-authorization-server.version>
+        <spring-cloud.version>2022.0.3</spring-cloud.version>
         <ulid-creator.version>5.1.0</ulid-creator.version>
     </properties>
     <!--用于根据环境切换属性。如部署时：deploy -P release此时会选择配置的release环境的属性-->
@@ -27,7 +24,6 @@
         <profile>
             <id>release</id>
             <properties>
-                <cj.geochat.ability.project.version>1.0.0</cj.geochat.ability.project.version>
             </properties>
         </profile>
     </profiles>
@@ -47,6 +43,7 @@
         <module>cj-geochat-ability-oauth2-server</module>
         <module>cj-geochat-ability-oauth2-gateway</module>
         <module>cj-geochat-ability-oauth2-app</module>
+        <module>cj-geochat-ability-web</module>
     </modules>
     <dependencies>
         <dependency>
@@ -78,19 +75,6 @@
                 <version>${spring-cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-bom -->
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-bom</artifactId>
-                <version>${spring-security-bom.version}</version>
-                <type>pom</type>
-            </dependency>
-            <!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-oauth2-authorization-server -->
-            <dependency>
-                <groupId>org.springframework.security</groupId>
-                <artifactId>spring-security-oauth2-authorization-server</artifactId>
-                <version>${spring-security-oauth2-authorization-server.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

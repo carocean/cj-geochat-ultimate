@@ -27,7 +27,7 @@
         <dependency>
             <groupId>cj.geochat</groupId>
             <artifactId>cj-geochat-ability-swagger</artifactId>
-            <version>${cj-geochat-ability-swagger.version}</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>cj.geochat</groupId>

@@ -22,7 +22,7 @@
         <dependency>
             <groupId>cj.geochat</groupId>
             <artifactId>cj-geochat-ability-oauth2-ultimate</artifactId>
-            <version>${cj-life-ability-oauth2-ultimate.version}</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>cj.geochat</groupId>
@@ -33,7 +33,7 @@
         <dependency>
             <groupId>cj.geochat</groupId>
             <artifactId>cj-geochat-ability-redis</artifactId>
-            <version>${cj-life-ability-redis.version}</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

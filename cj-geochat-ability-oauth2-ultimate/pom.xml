@@ -28,12 +28,12 @@
         <dependency>
             <groupId>cj.geochat</groupId>
             <artifactId>cj-geochat-ability-util</artifactId>
-            <version>${cj.geochat.ability.util.version}</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>cj.geochat</groupId>
             <artifactId>cj-geochat-ability-api</artifactId>
-            <version>${cj-geochat-ability-api.version}</version>
+            <version>1.0.0</version>
         </dependency>
         <dependency>
             <groupId>cj.geochat</groupId>

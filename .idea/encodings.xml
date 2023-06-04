@@ -20,6 +20,8 @@
     <file url="file://$PROJECT_DIR$/cj-geochat-ability-redis/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/cj-geochat-ability-swagger/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/cj-geochat-ability-util/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cj-geochat-ability-web/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cj-geochat-ability-web/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
   </component>
