@@ -1,5 +1,9 @@
 package cj.geochat.ability.oauth.server.convert;
 
+import cj.geochat.ability.oauth.server.OAuth2AuthenticationException;
+import cj.geochat.ability.oauth.server.OAuth2AuthorizationCodeRequestAuthenticationException;
+import cj.geochat.ability.oauth.server.OAuth2Error;
+import cj.geochat.ability.oauth.server.OAuth2ErrorCodes;
 import cj.geochat.ability.oauth.server.annotation.CjAuthConverter;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -22,7 +26,7 @@ public final class DelegatingResponseTypeConverter implements IAuthenticationCon
      */
     public DelegatingResponseTypeConverter(String defaultConverter, List<IAuthenticationConverter> converters) {
         Assert.notEmpty(converters, "converters cannot be empty");
-        this.defaultConverter=defaultConverter;
+        this.defaultConverter = defaultConverter;
         this.converters = new HashMap<>();
         for (IAuthenticationConverter converter : converters) {
             CjAuthConverter authType = converter.getClass().getAnnotation(CjAuthConverter.class);
@@ -42,7 +46,8 @@ public final class DelegatingResponseTypeConverter implements IAuthenticationCon
             auth_type = auth_type_arr[0];
         }
         if (!converters.containsKey(auth_type)) {
-            throw new AuthenticationServiceException("Response type not supported: " + auth_type);
+            OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST, "Response type not supported: " + auth_type, null);
+            throw new OAuth2AuthorizationCodeRequestAuthenticationException(error,null);
         }
         var convert = converters.get(auth_type);
         AbstractAuthenticationToken authRequest = convert.convert(request);

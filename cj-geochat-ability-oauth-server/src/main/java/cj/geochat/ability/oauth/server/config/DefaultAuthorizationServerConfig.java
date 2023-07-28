@@ -1,5 +1,9 @@
 package cj.geochat.ability.oauth.server.config;
 
+import cj.geochat.ability.api.R;
+import cj.geochat.ability.api.ResultCode;
+import cj.geochat.ability.oauth.server.OAuth2AuthenticationException;
+import cj.geochat.ability.oauth.server.ResultCodeTranslator;
 import cj.geochat.ability.oauth.server.entrypoint.authorize.consent.OAuth2AuthorizationConsentAuthenticationConverter;
 import cj.geochat.ability.oauth.server.entrypoint.authorize.consent.OAuth2AuthorizationConsentAuthenticationProvider;
 import cj.geochat.ability.oauth.server.entrypoint.authorize.request.OAuth2AuthorizationCodeRequestAuthenticationConverter;
@@ -26,6 +30,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
+import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -65,14 +70,18 @@ public class DefaultAuthorizationServerConfig {
                         .authenticationConverter(new PasswordAuthenticationConverter())
                         .authenticationProvider(new PasswordAuthenticationProvider(passwordEncoder, userDetailsService))
                         .failureHandler((request, response, exception) -> {
-                            Map<String, String> map = new HashMap<>();
-                            map.put("login error", exception.getMessage());
-                            response.getWriter().write(new ObjectMapper().writeValueAsString(map));
+                            response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+                            ResultCode rc = ResultCodeTranslator.translateException(exception);
+                            Object obj = R.of(rc, exception.getMessage());
+                            response.getWriter().write(new ObjectMapper().writeValueAsString(obj));
                         })
                         .successHandler((request, response, authentication) -> {
+                            response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+                            ResultCode rc = ResultCode.IS_AUTHORIZED;
                             Map<String, String> map = new HashMap<>();
-                            map.put("login success", "aaa");
-                            response.getWriter().write(new ObjectMapper().writeValueAsString(map));
+                            map.put("user", authentication.getName());
+                            Object obj = R.of(rc, map);
+                            response.getWriter().write(new ObjectMapper().writeValueAsString(obj));
                         })
                 )
                 .oauth2Server(c -> c
@@ -126,13 +135,24 @@ public class DefaultAuthorizationServerConfig {
                 })
                 .exceptionHandling((exceptions) -> exceptions
                         .authenticationEntryPoint((request, response, authException) -> {
+                            response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+                            ResultCode rc = ResultCodeTranslator.translateException(authException);
                             Map<String, String> map = new HashMap<>();
-                            map.put("authenticationEntryPoint", authException.getMessage());
-                            response.getWriter().write(new ObjectMapper().writeValueAsString(map));
+                            if (authException instanceof OAuth2AuthenticationException e) {
+                                map.put("errorCode", e.getError().getErrorCode());
+                                map.put("description", e.getError().getDescription());
+                            } else {
+                                map.put("exception", authException.getMessage());
+                            }
+                            Object obj = R.of(rc, map);
+                            response.getWriter().write(new ObjectMapper().writeValueAsString(obj));
                         }).accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+                            ResultCode rc = ResultCode.ACCESS_DENIED;
                             Map<String, String> map = new HashMap<>();
-                            map.put("denied", accessDeniedException.getMessage());
-                            response.getWriter().write(new ObjectMapper().writeValueAsString(map));
+                            map.put("exception", accessDeniedException.getMessage());
+                            Object obj = R.of(rc, map);
+                            response.getWriter().write(new ObjectMapper().writeValueAsString(obj));
                         })
                 )
         ;

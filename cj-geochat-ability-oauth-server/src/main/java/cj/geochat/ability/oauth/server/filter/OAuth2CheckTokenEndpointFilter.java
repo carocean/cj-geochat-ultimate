@@ -1,8 +1,8 @@
 package cj.geochat.ability.oauth.server.filter;
 
-import cj.geochat.ability.oauth.server.OAuth2AuthorizationRequest;
-import cj.geochat.ability.oauth.server.OAuth2EndpointUtils;
-import cj.geochat.ability.oauth.server.OAuth2TokenType;
+import cj.geochat.ability.api.R;
+import cj.geochat.ability.api.ResultCode;
+import cj.geochat.ability.oauth.server.*;
 import cj.geochat.ability.oauth.server.service.OAuth2AuthorizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
@@ -10,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
@@ -43,12 +44,18 @@ public class OAuth2CheckTokenEndpointFilter extends OncePerRequestFilter {
         var params = OAuth2EndpointUtils.getParameters(request);
         String token = params.getFirst("token");
         if (!StringUtils.hasText(token)) {
-            return;
+            OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST, "Missing parameter: token", null);
+            throw new OAuth2AuthorizationCodeRequestAuthenticationException(error,null);
         }
         var authToken = authorizationService.findByToken(token, OAuth2TokenType.ACCESS_TOKEN);
         if (authToken == null) {
-            return;
+            OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST, "Token does not exist", null);
+            throw new OAuth2AuthorizationCodeRequestAuthenticationException(error,null);
         }
+
+        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        ResultCode rc = ResultCode.SUCCESS_CHECK;
+
         var map = new LinkedHashMap<>();
         AbstractAuthenticationToken principal = authToken.getAttribute(Principal.class.getName());
         var authorities = principal.getAuthorities();
@@ -68,11 +75,11 @@ public class OAuth2CheckTokenEndpointFilter extends OncePerRequestFilter {
         map.put("app_id", oauth2Request.getAppId());
         map.put("state", oauth2Request.getState());
         map.put("redirect_uri", oauth2Request.getRedirectUri());
-        map.put("authorities", newAuthorities);
+        map.put("authorities", newAuthorities.stream().collect(Collectors.joining(",")));
         map.put("token_is_expired", accessToken.isExpired());
         map.put("token_is_active", accessToken.isActive());
         map.put("token_is_invalidated", accessToken.isInvalidated());
-
-        response.getOutputStream().write(new ObjectMapper().writeValueAsBytes(map));
+        Object obj = R.of(rc, map);
+        response.getOutputStream().write(new ObjectMapper().writeValueAsBytes(obj));
     }
 }

@@ -1,5 +1,7 @@
 package cj.geochat.ability.oauth.server.filter;
 
+import cj.geochat.ability.api.R;
+import cj.geochat.ability.api.ResultCode;
 import cj.geochat.ability.oauth.server.*;
 import cj.geochat.ability.oauth.server.convert.IAuthenticationConverter;
 import cj.geochat.ability.oauth.server.entrypoint.token.OAuth2AccessTokenAuthenticationToken;
@@ -11,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -29,6 +32,7 @@ import java.io.IOException;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class OAuth2TokenEndpointFilter extends OncePerRequestFilter {
     private static final String DEFAULT_TOKEN_ENDPOINT_URI = "/oauth2/token";
@@ -95,25 +99,30 @@ public class OAuth2TokenEndpointFilter extends OncePerRequestFilter {
         OAuth2RefreshToken refreshToken = accessTokenAuthentication.getRefreshToken();
         Map<String, Object> additionalParameters = accessTokenAuthentication.getAdditionalParameters();
 
+        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        ResultCode rc = ResultCode.SUCCESS_TOKEN;
         Map<String, Object> accessTokenObject = new HashMap<>();
         accessTokenObject.put("access_token", accessToken.getTokenValue());
-        accessTokenObject.put("token_type", accessToken.getTokenType());
+        accessTokenObject.put("token_type", accessToken.getTokenType().getValue());
         accessTokenObject.put("access_token", accessToken.getTokenValue());
-        accessTokenObject.put("scopes", accessToken.getScopes());
+        accessTokenObject.put("scope", accessToken.getScopes().stream().collect(Collectors.joining(" ")));
         accessTokenObject.put("expires_in", ChronoUnit.SECONDS.between(accessToken.getIssuedAt(), accessToken.getExpiresAt()));
         accessTokenObject.put("refresh_token", refreshToken.getTokenValue());
-        accessTokenObject.put("additional_parameters", additionalParameters);
-        response.getOutputStream().write(new ObjectMapper().writeValueAsBytes(accessTokenObject));
+        accessTokenObject.put("additional_parameters", additionalParameters.entrySet().stream().map(e -> e.getKey() + ":" + e.getValue()).collect(Collectors.joining(",")));
+        Object obj = R.of(rc, accessTokenObject);
+        response.getOutputStream().write(new ObjectMapper().writeValueAsBytes(obj));
     }
 
     private void sendErrorResponse(HttpServletRequest request, HttpServletResponse response,
                                    AuthenticationException exception) throws IOException {
-
+        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        ResultCode rc = ResultCodeTranslator.translateException(exception);
         OAuth2Error error = ((OAuth2AuthenticationException) exception).getError();
-        response.sendError(HttpStatus.BAD_REQUEST.value(), HttpStatus.BAD_REQUEST.name());
-        Map<String, Object> accessTokenObject = new HashMap<>();
-        accessTokenObject.put("message", exception.getMessage());
-        response.getOutputStream().write(new ObjectMapper().writeValueAsBytes(accessTokenObject));
+        Map<String, Object> map = new HashMap<>();
+        map.put("errorCode", error.getErrorCode());
+        map.put("description", error.getDescription());
+        Object obj = R.of(rc, map);
+        response.getOutputStream().write(new ObjectMapper().writeValueAsBytes(obj));
     }
 
     private static void throwError(String errorCode, String parameterName) {

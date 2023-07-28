@@ -34,12 +34,16 @@ public enum ResultCode {
   REMEMBER_ME_AUTHENTICATION("2021", "remember_me_authentication"),
   NONCE_EXPIRED("2022", "nonce_expired"),
   ACCOUNT_STATUS("2023", "account_status"),
-
+  OAUTH2_CODE_REQUEST("2024", "oauth2_code_request_error"),
   IS_AUTHORIZED("2030", "is_authorized"),
   IS_LOGOUT("2031", "is_logout"),
   IS_LOGOUT_FAILURE("2032", "is_logout_failure"),
   REQ_TOKEN_FAILURE("2033", "req_token_failure"),
   CONFIRM_ACCESS("2034", "oauth_confirm_access"),
+  REQUIRE_CONSENT("2035", "is_require_consent"),
+  SUCCESS_CODE("2036", "is_success_code"),
+  SUCCESS_TOKEN("2037", "is_success_token"),
+  SUCCESS_CHECK("2038", "is_success_check"),
   ERROR_UNKNOWN("2040", "unknown"),
   /* 系统及http协议错误 4001-4999*/
   SYSTEM_ERROR("4005", "system_error"),

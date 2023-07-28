@@ -1,13 +1,12 @@
 package cj.geochat.ability.oauth.server.filter;
 
-import cj.geochat.ability.oauth.server.OAuth2AuthenticationException;
-import cj.geochat.ability.oauth.server.OAuth2AuthorizationCodeRequestAuthenticationException;
-import cj.geochat.ability.oauth.server.OAuth2Error;
-import cj.geochat.ability.oauth.server.OAuth2ParameterNames;
-import cj.geochat.ability.oauth.server.entrypoint.authorize.consent.OAuth2AuthorizationConsentAuthenticationToken;
-import cj.geochat.ability.oauth.server.entrypoint.authorize.request.OAuth2AuthorizationCodeRequestAuthenticationToken;
+import cj.geochat.ability.api.R;
+import cj.geochat.ability.api.ResultCode;
+import cj.geochat.ability.oauth.server.*;
 import cj.geochat.ability.oauth.server.convert.DelegatingResponseTypeConverter;
 import cj.geochat.ability.oauth.server.convert.IAuthenticationConverter;
+import cj.geochat.ability.oauth.server.entrypoint.authorize.consent.OAuth2AuthorizationConsentAuthenticationToken;
+import cj.geochat.ability.oauth.server.entrypoint.authorize.request.OAuth2AuthorizationCodeRequestAuthenticationToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -15,7 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.core.log.LogMessage;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -37,6 +36,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 ///参考spring oauth2的对应类：OAuth2AuthorizationEndpointFilter
 public class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilter {
@@ -118,26 +118,34 @@ public class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilter {
             this.authenticationFailureHandler.onAuthenticationFailure(request, response, ex);
         }
     }
+
     private void sendAuthorizationConsent(HttpServletRequest request, HttpServletResponse response,
                                           OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication,
                                           OAuth2AuthorizationConsentAuthenticationToken authorizationConsentAuthentication) throws IOException {
 
-        String clientId = authorizationConsentAuthentication.getAppId();
+        String appId = authorizationConsentAuthentication.getAppId();
         Authentication principal = (Authentication) authorizationConsentAuthentication.getPrincipal();
         Set<String> requestedScopes = authorizationCodeRequestAuthentication.getScopes();
-        Set<String> authorizedScopes = authorizationConsentAuthentication.getScopes();
+//        Set<String> authorizedScopes = authorizationConsentAuthentication.getScopes();
         String state = authorizationConsentAuthentication.getState();
 
         String redirectUri = UriComponentsBuilder.fromUriString(resolveConsentUri(request))
                 .queryParam(OAuth2ParameterNames.SCOPE, String.join(" ", requestedScopes))
-                .queryParam(OAuth2ParameterNames.APP_ID, clientId)
+                .queryParam(OAuth2ParameterNames.APP_ID, appId)
                 .queryParam(OAuth2ParameterNames.STATE, state)
                 .toUriString();
+
+        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        ResultCode rc = ResultCode.REQUIRE_CONSENT;
+
         Map<String, Object> body = new HashMap<>();
+        body.put("user", principal.getName());
+        body.put("app_id", appId);
         body.put("redirect_uri", redirectUri);
-        body.put("requireConsent", true);
+        body.put("scope", requestedScopes.stream().collect(Collectors.joining(" ")));
         body.put("state", UriUtils.encode(authorizationCodeRequestAuthentication.getState(), StandardCharsets.UTF_8));
-        response.getOutputStream().write(new ObjectMapper().writeValueAsBytes(body));
+        Object obj = R.of(rc, body);
+        response.getOutputStream().write(new ObjectMapper().writeValueAsBytes(obj));
     }
 
     private String resolveConsentUri(HttpServletRequest request) {
@@ -164,26 +172,41 @@ public class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilter {
         }
 
         String redirectUri = uriBuilder.build(true).toUriString();        // build(true) -> Components are explicitly encoded
+
+        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        ResultCode rc = ResultCode.SUCCESS_CODE;
+
         Map<String, Object> body = new HashMap<>();
-        body.put("method", "Success");
+        body.put("user", authentication.getName());
+        body.put("app_id", authorizationCodeRequestAuthentication.getAppId());
         body.put("redirect_uri", redirectUri);
+        body.put("scope", authorizationCodeRequestAuthentication.getScopes().stream().collect(Collectors.joining(" ")));
         body.put("code", authorizationCodeRequestAuthentication.getAuthorizationCode().getTokenValue());
         body.put("state", UriUtils.encode(authorizationCodeRequestAuthentication.getState(), StandardCharsets.UTF_8));
-        response.getOutputStream().write(new ObjectMapper().writeValueAsBytes(body));
+        Object obj = R.of(rc, body);
+        response.getOutputStream().write(new ObjectMapper().writeValueAsBytes(obj));
     }
 
     private void sendErrorResponse(HttpServletRequest request, HttpServletResponse response,
                                    AuthenticationException exception) throws IOException {
 
         OAuth2AuthorizationCodeRequestAuthenticationException authorizationCodeRequestAuthenticationException =
-                (OAuth2AuthorizationCodeRequestAuthenticationException)   exception;
+                (OAuth2AuthorizationCodeRequestAuthenticationException) exception;
         OAuth2Error error = authorizationCodeRequestAuthenticationException.getError();
         OAuth2AuthorizationCodeRequestAuthenticationToken authorizationCodeRequestAuthentication =
                 authorizationCodeRequestAuthenticationException.getAuthorizationCodeRequestAuthentication();
 
+        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        ResultCode rc = ResultCodeTranslator.translateException(exception);
+
         if (authorizationCodeRequestAuthentication == null ||
                 !StringUtils.hasText(authorizationCodeRequestAuthentication.getRedirectUri())) {
-            response.sendError(HttpStatus.BAD_REQUEST.value(), error.toString());
+            Map<String, Object> body = new HashMap<>();
+            body.put("errorCode", error.getErrorCode());
+            body.put("description", error.getDescription());
+
+            Object obj = R.of(rc, body);
+            response.getOutputStream().write(new ObjectMapper().writeValueAsBytes(obj));
             return;
         }
 
@@ -210,13 +233,16 @@ public class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilter {
                     UriUtils.encode(authorizationCodeRequestAuthentication.getState(), StandardCharsets.UTF_8));
         }
         String redirectUri = uriBuilder.build(true).toUriString();        // build(true) -> Components are explicitly encoded
+
+
         Map<String, Object> body = new HashMap<>();
-        body.put("method", "Error");
         body.put("redirect_uri", redirectUri);
-        body.put("code", authorizationCodeRequestAuthentication.getAuthorizationCode().getTokenValue());
         body.put("state", UriUtils.encode(authorizationCodeRequestAuthentication.getState(), StandardCharsets.UTF_8));
-        body.put("error", error);
-        response.getOutputStream().write(new ObjectMapper().writeValueAsBytes(body));
+        body.put("code", authorizationCodeRequestAuthentication.getAuthorizationCode());
+        body.put("errorCode", error.getErrorCode());
+        body.put("description", error.getDescription());
+        Object obj = R.of(rc, body);
+        response.getOutputStream().write(new ObjectMapper().writeValueAsBytes(obj));
     }
 
     public void setAuthenticationConverter(DelegatingResponseTypeConverter authenticationConverter) {

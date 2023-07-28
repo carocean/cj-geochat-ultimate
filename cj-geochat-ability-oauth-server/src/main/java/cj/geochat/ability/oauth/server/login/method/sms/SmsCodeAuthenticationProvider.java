@@ -27,7 +27,7 @@ public class SmsCodeAuthenticationProvider implements AuthenticationProvider {
         if (passwordEncoder.matches(authentication.getCredentials().toString(), userDetails.getPassword())) {
             return new SmsCodeAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
         }
-        throw new BadCredentialsException("用户名密码不正确");
+        throw new BadCredentialsException("Incorrect username and password. ");
     }
 
     @Override

@@ -27,7 +27,7 @@ public class PasswordAuthenticationProvider implements AuthenticationProvider {
         if (passwordEncoder.matches(authentication.getCredentials().toString(), userDetails.getPassword())) {
             return new PasswordAuthenticationToken(userDetails, userDetails.getPassword(), userDetails.getAuthorities());
         }
-        throw new BadCredentialsException("用户名密码不正确");
+        throw new BadCredentialsException("Incorrect username and password. ");
     }
 
     @Override
