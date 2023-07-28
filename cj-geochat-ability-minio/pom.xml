@@ -6,7 +6,7 @@
         <groupId>cj.geochat</groupId>
         <artifactId>cj-geochat-ultimate</artifactId>
         <!--不要指定为snapshots版。只指定正式版，会依据父pom的环境而变化-->
-        <version>1.0.0</version>
+        <version>1.5.0</version>
         <!--        <relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
     </parent>
     <modelVersion>4.0.0</modelVersion>
@@ -17,6 +17,7 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <io.minio.version>8.5.2</io.minio.version>
+        <io.minio.admin.version>8.5.2</io.minio.admin.version>
     </properties>
     <dependencies>
         <dependency>
@@ -29,8 +30,22 @@
             <version>${io.minio.version}</version>
         </dependency>
         <dependency>
+            <groupId>io.minio</groupId>
+            <artifactId>minio-admin</artifactId>
+            <version>${io.minio.admin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+        </dependency>
+        <dependency>
             <groupId>cj.geochat</groupId>
             <artifactId>cj-geochat-ability-api</artifactId>
+            <version>1.5.0</version>
+        </dependency>
+        <dependency>
+            <groupId>cj.geochat</groupId>
+            <artifactId>cj-geochat-util-minio</artifactId>
             <version>1.0.0</version>
         </dependency>
     </dependencies>

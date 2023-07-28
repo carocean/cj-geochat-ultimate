@@ -18,7 +18,16 @@
         <option value="$PROJECT_DIR$/cj-geochat-ability-oauth2-common/pom.xml" />
         <option value="$PROJECT_DIR$/cj-geochat-ability-oauth2-server/pom.xml" />
         <option value="$PROJECT_DIR$/cj-geochat-ability-oauth2-ultimate/pom.xml" />
+        <option value="$PROJECT_DIR$/cj-geochat-ability-kafka/pom.xml" />
       </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/cj-geochat-ability-oauth2-app/pom.xml" />
+        <option value="$PROJECT_DIR$/cj-geochat-ability-oauth2-gateway/pom.xml" />
+        <option value="$PROJECT_DIR$/cj-geochat-ability-oauth2-server/pom.xml" />
+        <option value="$PROJECT_DIR$/cj-geochat-ability-oauth2-ultimate/pom.xml" />
+      </set>
     </option>
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="17" project-jdk-type="JavaSDK">

@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 @Data
 @NoArgsConstructor
@@ -32,5 +34,13 @@ public class R<T> implements Serializable {
 
     public static <T> R<T> of(ResultCode rc,T data) {
         return new R<>(rc.code(), rc.message(), data);
+    }
+
+    public Map<String,Object> toMap() {
+        Map<String, Object> map = new HashMap<>();
+        map.put("code", code);
+        map.put("message", message);
+        map.put("data", data);
+        return map;
     }
 }

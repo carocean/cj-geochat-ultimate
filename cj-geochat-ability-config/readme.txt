@@ -17,7 +17,7 @@ spring:
       #        # 开启 Config 服务发现与注册
       #        enabled: true
       #        # 指定 server
-      #        service-id: CJ-geochat-CONFIG-SERVER #注册到Eureka的配置中心微服务名称
+      #        service-id: CJ-geochat-CONFIG-SERVER #配置中心在Eureka Server上注册的名称。
       profile: dev
       label: master
   #      username:
@@ -34,7 +34,7 @@ spring:
         # 开启 Config 服务发现与注册
         enabled: true
         # 指定 server
-        #注册到Eureka的配置中心微服务名称
+        #配置中心在Eureka Server上注册的名称。
         service-id: cj-geochat-config-server
       profile: prod
       label: master

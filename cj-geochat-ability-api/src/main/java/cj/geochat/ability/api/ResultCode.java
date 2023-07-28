@@ -39,7 +39,7 @@ public enum ResultCode {
   IS_LOGOUT("2031", "is_logout"),
   IS_LOGOUT_FAILURE("2032", "is_logout_failure"),
   REQ_TOKEN_FAILURE("2033", "req_token_failure"),
-
+  CONFIRM_ACCESS("2034", "oauth_confirm_access"),
   ERROR_UNKNOWN("2040", "unknown"),
   /* 系统及http协议错误 4001-4999*/
   SYSTEM_ERROR("4005", "system_error"),

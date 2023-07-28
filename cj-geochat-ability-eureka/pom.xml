@@ -6,7 +6,7 @@
         <groupId>cj.geochat</groupId>
         <artifactId>cj-geochat-ultimate</artifactId>
         <!--不要指定为snapshots版。只指定正式版，会依据父pom的环境而变化-->
-        <version>1.0.0</version>
+        <version>1.5.0</version>
         <!--        <relativePath/> &lt;!&ndash; lookup parent from repository &ndash;&gt;-->
     </parent>
     <modelVersion>4.0.0</modelVersion>

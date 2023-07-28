@@ -2,6 +2,8 @@ package cj.geochat.ability.api;
 
 import cj.geochat.ability.api.exception.ApiException;
 import cj.geochat.ability.api.exception.ErrorResult;
+import cj.geochat.ability.util.GeochatException;
+import cj.geochat.ability.util.GeochatRuntimeException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -36,7 +38,16 @@ public class GlobalExceptionHandler {
         log.error("发生业务异常！原因是: {}", e.getMessage());
         return ErrorResult.fail(e.getCode(), e.getMessage(), e);
     }
-
+    @ExceptionHandler(GeochatException.class)
+    public ErrorResult geochatExceptionHandler(GeochatException e, HttpServletRequest request) {
+        log.error("发生业务异常！原因是: {}", e.getMessage());
+        return ErrorResult.fail(e.getCode(), e.getMessage(), e);
+    }
+    @ExceptionHandler(GeochatRuntimeException.class)
+    public ErrorResult geochatRuntimeExceptionHandler(GeochatRuntimeException e, HttpServletRequest request) {
+        log.error("发生业务异常！原因是: {}", e.getMessage());
+        return ErrorResult.fail(e.getCode(), e.getMessage(), e);
+    }
     // 拦截抛出的异常，@ResponseStatus：用来改变响应状态码
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     @ExceptionHandler(Throwable.class)
