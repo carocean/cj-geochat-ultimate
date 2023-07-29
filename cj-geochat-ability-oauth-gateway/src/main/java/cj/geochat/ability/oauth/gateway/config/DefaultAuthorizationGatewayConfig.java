@@ -8,6 +8,7 @@ import cj.geochat.ability.oauth.gateway.properties.DefaultSecurityProperties;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
@@ -22,6 +23,7 @@ import java.util.Map;
 
 @Configuration
 @EnableWebFluxSecurity
+@ComponentScan("cj.geochat.ability.oauth.gateway")
 @EnableConfigurationProperties(DefaultSecurityProperties.class)
 public class DefaultAuthorizationGatewayConfig {
 

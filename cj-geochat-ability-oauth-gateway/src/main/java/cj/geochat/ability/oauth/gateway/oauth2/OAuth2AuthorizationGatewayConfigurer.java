@@ -114,7 +114,7 @@ public class OAuth2AuthorizationGatewayConfigurer {
 
         http.authorizeExchange((authorize) -> authorize
                 .pathMatchers(all.toArray(new String[0])).permitAll()  //无需进行权限过滤的请求路径:"/token", "/token/**", "/refresh_token", "/oauth2/**", "/logout"
-                .pathMatchers("/**").access(authorizationManager)
+                .pathMatchers("/*/**").access(authorizationManager)
                 .anyExchange().authenticated()
         );
     }
@@ -129,20 +129,20 @@ public class OAuth2AuthorizationGatewayConfigurer {
             //开放每个微服务的公共服务，比如app后台请求token
             all.add(0, "/*/public/**");
         }
-        if (!all.contains("/webjars/**")) {
-            all.add("/webjars/**");
+        if (!all.contains("/*/webjars/**")) {
+            all.add("/*/webjars/**");
         }
-        if (!all.contains("/v3/api-docs/**")) {
-            all.add("/v3/api-docs/**");
+        if (!all.contains("/*/v3/api-docs/**")) {
+            all.add("/*/v3/api-docs/**");
         }
-        if (!all.contains("/swagger-ui/**")) {
-            all.add("/swagger-ui/**");
+        if (!all.contains("/*/swagger-ui/**")) {
+            all.add("/*/swagger-ui/**");
         }
-        if (!all.contains("/doc.html")) {
-            all.add("/doc.html");
+        if (!all.contains("/*/doc.html")) {
+            all.add("/*/doc.html");
         }
-        if (!all.contains("/doc.html**")) {
-            all.add("/doc.html**");
+        if (!all.contains("/*/doc.html**")) {
+            all.add("/*/doc.html**");
         }
         return all;
     }

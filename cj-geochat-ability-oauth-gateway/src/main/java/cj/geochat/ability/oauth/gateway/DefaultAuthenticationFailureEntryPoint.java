@@ -14,6 +14,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.netty.ByteBufFlux;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * 401未授权异常处理，转换为JSON
  *
@@ -27,11 +30,18 @@ import reactor.netty.ByteBufFlux;
 public class DefaultAuthenticationFailureEntryPoint implements ServerAuthenticationEntryPoint {
     @SneakyThrows
     @Override
-    public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException e) {
+    public Mono<Void> commence(ServerWebExchange exchange, AuthenticationException exception) {
         ServerHttpResponse response = exchange.getResponse();
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
         ResultCode rc = ResultCode.UNAUTHORIZED_CLIENT;
-        Object r = R.of(rc, e.getMessage());
+        Map<String, String> map = new HashMap<>();
+        if (exception instanceof OAuth2AuthenticationException e) {
+            map.put("errorCode", e.getError().getErrorCode());
+            map.put("description", e.getError().getDescription());
+        } else {
+            map.put("exception", exception.getMessage());
+        }
+        Object r = R.of(rc, map);
         return response.writeAndFlushWith(Flux.just(ByteBufFlux.just(response.bufferFactory().wrap(new ObjectMapper().writeValueAsString(r).getBytes("UTF-8")))));
     }
 }
