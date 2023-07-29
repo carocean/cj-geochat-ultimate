@@ -5,7 +5,7 @@ import cj.geochat.ability.oauth.app.OAuth2AuthorizationService;
 import cj.geochat.ability.oauth.app.entrypoint.BearerTokenAccessDeniedHandler;
 import cj.geochat.ability.oauth.app.entrypoint.BearerTokenAuthenticationEntryPoint;
 import cj.geochat.ability.oauth.app.entrypoint.OpaqueTokenAuthenticationProvider;
-import cj.geochat.ability.oauth.app.filter.BearerTokenAuthenticationFilter;
+import cj.geochat.ability.oauth.app.filter.OutsideAppAuthenticationFilter;
 import cj.geochat.ability.oauth.app.resolver.DefaultBearerTokenResolver;
 import cj.geochat.ability.oauth.app.OAuth2AuthenticationException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,7 +35,7 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class OAuth2AuthorizationOutsideAppConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<OAuth2AuthorizationOutsideAppConfigurer<H>, H> {
+public class OutsideAppAuthorizationConfigurer<H extends HttpSecurityBuilder<H>> extends AbstractHttpConfigurer<OutsideAppAuthorizationConfigurer<H>, H> {
 
     private static final RequestHeaderRequestMatcher X_REQUESTED_WITH = new RequestHeaderRequestMatcher(
             "X-Requested-With", "XMLHttpRequest");
@@ -58,31 +58,31 @@ public class OAuth2AuthorizationOutsideAppConfigurer<H extends HttpSecurityBuild
     private BearerTokenRequestMatcher requestMatcher = new BearerTokenRequestMatcher();
     private OAuth2AuthorizationService authorizationService;
 
-    public OAuth2AuthorizationOutsideAppConfigurer(ApplicationContext context) {
+    public OutsideAppAuthorizationConfigurer(ApplicationContext context) {
         Assert.notNull(context, "context cannot be null");
         this.context = context;
     }
 
-    public OAuth2AuthorizationOutsideAppConfigurer<H> accessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {
+    public OutsideAppAuthorizationConfigurer<H> accessDeniedHandler(AccessDeniedHandler accessDeniedHandler) {
         Assert.notNull(accessDeniedHandler, "accessDeniedHandler cannot be null");
         this.accessDeniedHandler = accessDeniedHandler;
         return this;
     }
 
-    public OAuth2AuthorizationOutsideAppConfigurer<H> authenticationEntryPoint(AuthenticationEntryPoint entryPoint) {
+    public OutsideAppAuthorizationConfigurer<H> authenticationEntryPoint(AuthenticationEntryPoint entryPoint) {
         Assert.notNull(entryPoint, "entryPoint cannot be null");
         this.authenticationEntryPoint = entryPoint;
         return this;
     }
 
-    public OAuth2AuthorizationOutsideAppConfigurer<H> authenticationManagerResolver(
+    public OutsideAppAuthorizationConfigurer<H> authenticationManagerResolver(
             AuthenticationManagerResolver<HttpServletRequest> authenticationManagerResolver) {
         Assert.notNull(authenticationManagerResolver, "authenticationManagerResolver cannot be null");
         this.authenticationManagerResolver = authenticationManagerResolver;
         return this;
     }
 
-    public OAuth2AuthorizationOutsideAppConfigurer<H> bearerTokenResolver(BearerTokenResolver bearerTokenResolver) {
+    public OutsideAppAuthorizationConfigurer<H> bearerTokenResolver(BearerTokenResolver bearerTokenResolver) {
         Assert.notNull(bearerTokenResolver, "bearerTokenResolver cannot be null");
         this.bearerTokenResolver = bearerTokenResolver;
         return this;
@@ -117,7 +117,7 @@ public class OAuth2AuthorizationOutsideAppConfigurer<H extends HttpSecurityBuild
         this.requestMatcher.setBearerTokenResolver(bearerTokenResolver);
         AuthenticationManager authenticationManager = getAuthenticationManager(http);
 
-        BearerTokenAuthenticationFilter filter = new BearerTokenAuthenticationFilter(authenticationManager);
+        OutsideAppAuthenticationFilter filter = new OutsideAppAuthenticationFilter(authenticationManager);
         filter.setBearerTokenResolver(bearerTokenResolver);
         filter.setAuthenticationEntryPoint(this.authenticationEntryPoint);
         filter.setSecurityContextHolderStrategy(getSecurityContextHolderStrategy());
@@ -126,7 +126,7 @@ public class OAuth2AuthorizationOutsideAppConfigurer<H extends HttpSecurityBuild
     }
 
 
-    public OAuth2AuthorizationOutsideAppConfigurer<H> opaqueToken(Customizer<OpaqueTokenConfigurer> opaqueTokenCustomizer) {
+    public OutsideAppAuthorizationConfigurer<H> opaqueToken(Customizer<OpaqueTokenConfigurer> opaqueTokenCustomizer) {
         if (this.opaqueTokenConfigurer == null) {
             this.opaqueTokenConfigurer = new OpaqueTokenConfigurer(this.context);
         }
@@ -210,7 +210,7 @@ public class OAuth2AuthorizationOutsideAppConfigurer<H extends HttpSecurityBuild
         return this.bearerTokenResolver;
     }
 
-    public OAuth2AuthorizationOutsideAppConfigurer authorizationService(OAuth2AuthorizationService authorizationService) {
+    public OutsideAppAuthorizationConfigurer authorizationService(OAuth2AuthorizationService authorizationService) {
         this.authorizationService = authorizationService;
         return this;
     }

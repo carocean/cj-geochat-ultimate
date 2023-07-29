@@ -3,20 +3,27 @@ package cj.geochat.ability.swagger.config;
 
 import cj.geochat.ability.swagger.SwaggerProperties;
 import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
+import io.swagger.v3.oas.models.media.StringSchema;
+import io.swagger.v3.oas.models.parameters.Parameter;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.models.GroupedOpenApi;
-import org.springframework.beans.factory.InitializingBean;
+import org.springdoc.core.properties.SpringDocConfigProperties;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import java.util.regex.Pattern;
+import java.util.Collections;
 
 /**
  * 使用knife4j替代swagger-ui
@@ -24,64 +31,76 @@ import java.util.regex.Pattern;
 @Configuration
 @EnableConfigurationProperties(SwaggerProperties.class)
 @Slf4j
-public class DefaultSwagger3Config implements InitializingBean {
+public class DefaultSwagger3Config implements BeanPostProcessor {
     @Autowired
-    private SwaggerProperties swaggerProperties;
+    private SwaggerProperties properties;
     @Autowired
-    private ApplicationContext applicationContext;
-    private Pattern apiVersionPattern;
+    ApplicationContext context;
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
-        if (!swaggerProperties.isEnabled()) {
-            return;
-        }
-    }
-
-    /**
-     * SpringDoc 标题、描述、版本等信息配置
-     *
-     * @return openApi 配置信息
-     */
     @Bean
     public OpenAPI springDocOpenAPI() {
+        Info info = properties.getInfo();
+        License license = info.getLicense() == null ? new License() : info.getLicense();
+        Contact contact = info.getContact() == null ? new Contact() : info.getContact();
+        SecurityScheme token = properties.getToken() == null ? new SecurityScheme() : properties.getToken();
+        ExternalDocumentation externalDocumentation = properties.getExternalDocs() == null ? new ExternalDocumentation() : properties.getExternalDocs();
+
         return new OpenAPI().info(new Info()
-                        .title("YiYi API")
-                        .description("YiYi接口文档说明")
-                        .version("v0.0.1-SNAPSHOT")
-                        .license(new License().name("YiYi项目博客专栏")
-                                .url("https://blog.csdn.net/weihao0240/category_12166012.html")))
-//                .externalDocs(new ExternalDocumentation()
-//                        .description("码云项目地址")
-//                        .url("https://gitee.com/jack0240/YiYi"))
+                        .title(info.getTitle())
+                        .description(info.getDescription())
+                        .version(info.getVersion())
+                        .summary(info.getSummary())
+                        .contact(new Contact()
+                                .name(contact.getName())
+                                .url(contact.getUrl())
+                                .email(contact.getEmail())
+                        )
+                        .license(new License()
+                                .name(license.getName())
+                                .url(license.getUrl())
+                                .identifier(license.getIdentifier())
+                        )
+                )
+                .externalDocs(externalDocumentation)
                 // 配置Authorizations
-                .components(new Components().addSecuritySchemes("bearer-key",
-                        new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer")));
+                .components(new Components()
+                        .addSecuritySchemes(token.getName(), token)
+                        .addParameters(token.getName(), new Parameter()
+                                .name(token.getName())
+                                .in(token.getIn().name())
+                                .schema(new StringSchema().name(token.getScheme()))
+                        )
+                )
+                .addSecurityItem(new SecurityRequirement()
+                        .addList(token.getName())
+                )
+                ;
     }
 
-    /**
-     * demo 分组
-     *
-     * @return demo分组接口
-     */
-    @Bean
-    public GroupedOpenApi siteApi() {
-        return GroupedOpenApi.builder()
-                .group("demo接口")
-                .pathsToMatch("/demo/**")
-                .build();
+    @Override
+    public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
+        //为配置的组添加参数。这是因为：
+        // 添加自定义配置，这里添加了一个用户认证的 header，否则 knife4j 里会没有 header
+        if (SpringDocConfigProperties.class.isAssignableFrom(bean.getClass())) {
+            SpringDocConfigProperties springDocConfigProperties = (SpringDocConfigProperties) bean;
+            springDocConfigProperties.getGroupConfigs().forEach(groupConfig -> {
+                GroupedOpenApi groupedOpenApi = (GroupedOpenApi) context.getBean(groupConfig.getGroup());
+                groupedOpenApi.addAllOperationCustomizer(
+                        Collections.singletonList(
+                                (operation, handlerMethod) -> operation.security(
+                                        Collections.singletonList(
+                                                new SecurityRequirement()
+                                                        .addList(properties
+                                                                .getToken()
+                                                                .getName()
+                                                        )
+                                        ))
+                        )
+                );
+            });
+
+        }
+        return BeanPostProcessor.super.postProcessBeforeInitialization(bean, beanName);
     }
 
-    /**
-     * sys 分组
-     *
-     * @return sys分组接口
-     */
-    @Bean
-    public GroupedOpenApi adminApi() {
-        return GroupedOpenApi.builder()
-                .group("sys接口")
-                .pathsToMatch("/sys/**")
-                .build();
-    }
 }

@@ -24,11 +24,12 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.util.Assert;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
+public class OutsideAppAuthenticationFilter extends OncePerRequestFilter {
     private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
     private AuthenticationEntryPoint authenticationEntryPoint = new BearerTokenAuthenticationEntryPoint();
     private AuthenticationFailureHandler authenticationFailureHandler = new AuthenticationEntryPointFailureHandler((request, response, exception) -> {
@@ -39,7 +40,7 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
     private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
     private AuthenticationManager authenticationManager;
 
-    public BearerTokenAuthenticationFilter(AuthenticationManager authenticationManager) {
+    public OutsideAppAuthenticationFilter(AuthenticationManager authenticationManager) {
         Assert.notNull(authenticationManager, "authenticationManager cannot be null");
         this.authenticationManager = authenticationManager;
     }
@@ -54,7 +55,7 @@ public class BearerTokenAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (token == null) {
+        if (!StringUtils.hasText(token)) {
             this.logger.trace("Did not process request since did not find bearer token");
             filterChain.doFilter(request, response);
         } else {

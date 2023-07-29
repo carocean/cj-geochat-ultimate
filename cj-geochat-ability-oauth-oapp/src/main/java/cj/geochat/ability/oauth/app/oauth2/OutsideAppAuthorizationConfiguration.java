@@ -7,7 +7,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 
-public class OAuth2AuthorizationOutsideAppConfiguration {
+public class OutsideAppAuthorizationConfiguration {
     @Bean
     @Order(Ordered.HIGHEST_PRECEDENCE)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -18,8 +18,8 @@ public class OAuth2AuthorizationOutsideAppConfiguration {
     // @formatter:off
     public static void applyDefaultSecurity(HttpSecurity http) throws Exception {
         var context=http.getSharedObject(ApplicationContext.class);
-        OAuth2AuthorizationOutsideAppConfigurer authorizationOutsideAppConfigurer =
-                new OAuth2AuthorizationOutsideAppConfigurer(context);
+        OutsideAppAuthorizationConfigurer authorizationOutsideAppConfigurer =
+                new OutsideAppAuthorizationConfigurer(context);
 
         http
 //                .securityMatcher(endpointsMatcher)
