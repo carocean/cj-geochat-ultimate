@@ -48,6 +48,10 @@ public class DefaultOutsideAppConfiguration {
         http
                 .cors(Customizer.withDefaults())
                 .csrf(c -> c.disable())
+                .headers(c->c.frameOptions(o->o.disable()))
+                .logout(c->c.disable())
+                .formLogin(c->c.disable())
+                .anonymous(c->c.disable())
                 .sessionManagement(c -> c
                         .sessionCreationPolicy(SessionCreationPolicy.NEVER)
                 )
@@ -62,7 +66,8 @@ public class DefaultOutsideAppConfiguration {
                 .exceptionHandling((exceptions) -> exceptions
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-                            ResultCode rc = ResultCodeTranslator.translateException(authException);
+//                            ResultCode rc = ResultCodeTranslator.translateException(authException);
+                            ResultCode rc = ResultCode.UNAUTHORIZED_CLIENT;
                             Map<String, String> map = new HashMap<>();
                             if (authException instanceof OAuth2AuthenticationException e) {
                                 map.put("errorCode", e.getError().getErrorCode());
