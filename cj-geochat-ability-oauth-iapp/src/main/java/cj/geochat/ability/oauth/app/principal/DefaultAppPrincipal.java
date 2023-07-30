@@ -69,9 +69,8 @@ public class DefaultAppPrincipal implements Principal {
 
     @Override
     public String toString() {
-        String fullName =
-                (StringUtils.hasText(user) ? user + "::" : "")
-                        + (StringUtils.hasText(appid) ? appid : "");
+        String fullName = (StringUtils.hasText(appid) ? appid + "::" : "")
+                + (StringUtils.hasText(user) ? user : "");
         return fullName;
     }
 

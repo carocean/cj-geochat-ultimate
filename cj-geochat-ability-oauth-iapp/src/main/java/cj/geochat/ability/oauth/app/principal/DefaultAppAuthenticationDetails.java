@@ -3,16 +3,16 @@ package cj.geochat.ability.oauth.app.principal;
 import cj.geochat.ability.oauth.app.AppType;
 
 public class DefaultAppAuthenticationDetails {
-    AppType appType;
+    boolean isFromGateway;
     private Object details;
 
-    public DefaultAppAuthenticationDetails(AppType appType, Object details) {
+    public DefaultAppAuthenticationDetails(boolean isFromGateway, Object details) {
         this.details = details;
-        this.appType = appType;
+        this.isFromGateway = isFromGateway;
     }
 
-    public AppType getAppType() {
-        return appType;
+    public boolean isFromGateway() {
+        return isFromGateway;
     }
 
     public Object getDetails() {

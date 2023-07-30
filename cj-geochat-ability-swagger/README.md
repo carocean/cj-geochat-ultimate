@@ -14,13 +14,15 @@ appdoc:
       name:
       identifier:
       url:
+  #内联应用如通过网关访问可以使用name=Authorization|access_token，
+  #如果直接访问只能使用name=Authorization，bear格式为：应用标识::用户::角色1,角色2
   token:
     #名称则被作为in所指的集合的属性名，Authorization是spring权限框架标准认证头。也可定自定义名称，但：
     #如果scheme是bearer且type是http，in是header则不论name设置为什么名称，swagger-ui均解释为Authorization
     #而knife4j会严格按照配置解析。因此要配成一致。
+    #如果是内联应用直接使用swagger的api而非通过网关访问，则使用Authorization固定的头格式
     name: Authorization
-    #如果是内应用直接使用swagger的api，则使用inside_app_token固定的头格式。注意使用内应用api认证需配置type：apiKey且scheme为空
-    #    name: inside_app_token
+    #    name: access_token
     #取值：http|apiKey
     #http类型则scheme应用bearer，如果不配bearer在swagger-ui界面认证弹窗中无法使用。
     #apiKey用于自定义认证，它将name作为在in中的参数名，注意：如果使用apiKey则scheme不起作用

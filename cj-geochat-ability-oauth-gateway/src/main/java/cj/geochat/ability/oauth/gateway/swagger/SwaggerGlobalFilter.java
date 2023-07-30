@@ -76,8 +76,16 @@ public class SwaggerGlobalFilter implements GlobalFilter, Ordered {
                         String s = this.listToString(list);
                         try {
                             Map<String, Object> jsonObject = new ObjectMapper().readValue(s, Map.class);
-
-                            jsonObject.put("host", host + ":" + port);
+                            jsonObject.put("configUrl", String.format("%s%s", basePath, jsonObject.get("configUrl")));
+                            List<Map<String, String>> urls = (List<Map<String, String>>) jsonObject.get("urls");
+                            if (urls != null) {
+                                urls.forEach(e ->
+                                        e.put("url", String.format("%s%s", basePath, e.get("url")))
+                                );
+                            }
+//                            jsonObject.put("urls", newUrls);
+                            String address = String.format("http://%s:%s", host, port);
+                            jsonObject.put("host", address);
                             jsonObject.put("basePath", basePath);
                             s = new ObjectMapper().writeValueAsString(jsonObject);
                         } catch (Exception e) {
@@ -116,15 +124,7 @@ public class SwaggerGlobalFilter implements GlobalFilter, Ordered {
     }
 
     private boolean isV3ApiDocsPath(String path) {
-        String remaining=path;
-        while (remaining.startsWith("/")) {
-            remaining = remaining.substring(1);
-        }
-        int pos = remaining.indexOf("/");
-        if (pos >-1) {
-            remaining = remaining.substring(pos);
-        }
-        return remaining.startsWith("/v3/api-docs");
+       return path.endsWith("/v3/api-docs/swagger-config");
     }
 
     @Override

@@ -1,7 +1,9 @@
 package cj.geochat.ability.oauth.app.resolver;
 
+import cj.geochat.ability.api.ResultCode;
+import cj.geochat.ability.oauth.app.OAuth2AuthenticationException;
+import cj.geochat.ability.oauth.app.OAuth2Error;
 import cj.geochat.ability.oauth.app.TokenExtractor;
-import cj.geochat.ability.oauth.app.AppType;
 import cj.geochat.ability.oauth.app.principal.DefaultAppAuthentication;
 import cj.geochat.ability.oauth.app.principal.DefaultAppAuthenticationDetails;
 import cj.geochat.ability.oauth.app.principal.DefaultAppPrincipal;
@@ -20,27 +22,30 @@ import java.util.List;
 public final class DefaultTokenExtractor implements TokenExtractor {
 
     public Authentication resolve(final HttpServletRequest request) {
-        String appTypeStr = request.getHeader("x-app-type");
-        if (!StringUtils.hasText(appTypeStr)) {
-            appTypeStr = AppType.outsideApp.name();
+        if (isGatewayRequest(request)) {
+            return resolveFromGateway(request);
         }
-        var appType = AppType.valueOf(appTypeStr);
-        //如果不是来自网关的swagger调用才进入以下处理。
-        //因为在网关中已对swagger的调用解析了，并将swagger_token附到了请求的header中供网关解析
-        if (appType != AppType.insideApp) {
-            String swaggerToken = request.getHeader("swagger_token");
-            if (StringUtils.hasText(swaggerToken)) {
-                return extractSwaggerToken(swaggerToken, appType, request);
-            }
+        if (isDirectRequest(request)) {
+            return resolverFromDirect(request);
         }
+//        OAuth2Error error = new OAuth2Error(ResultCode.ACCESS_DENIED.code(), ResultCode.ACCESS_DENIED.message(), null);
+//        throw new OAuth2AuthenticationException(error);
+        return null;
+    }
+
+
+    private boolean isGatewayRequest(HttpServletRequest request) {
+        String isFromGatewayStr = request.getHeader("x-from-gateway");
+        if (!StringUtils.hasText(isFromGatewayStr)) {
+            isFromGatewayStr = "false";
+        }
+        boolean isFromGateway = Boolean.valueOf(isFromGatewayStr);
+        return isFromGateway;
+    }
+
+    private Authentication resolveFromGateway(HttpServletRequest request) {
         String userid = request.getHeader("x-user");
-        if (!StringUtils.hasText(userid)) {//这说明是内部访问（不是经过网关的请求），改为匿名访问，除非使用swagger_token。
-            Principal principal = new DefaultAppPrincipal("anonymous_user", "anonymous_appid");
-            DefaultAppAuthenticationDetails details = new DefaultAppAuthenticationDetails(appType, request);
-            Authentication authentication = new DefaultAppAuthentication(principal, details, new ArrayList<>());
-            return authentication;
-        }
-        String appkey = request.getHeader("x-app-id");
+        String appid = request.getHeader("x-app-id");
         List<GrantedAuthority> authorityList = new ArrayList<>();
         String roles = request.getHeader("x-roles");
         if (StringUtils.hasText(roles)) {
@@ -49,38 +54,57 @@ public final class DefaultTokenExtractor implements TokenExtractor {
                 authorityList.add(new SimpleGrantedAuthority(role));
             }
         }
-        Principal principal = new DefaultAppPrincipal( userid, appkey);
-        DefaultAppAuthenticationDetails details = new DefaultAppAuthenticationDetails(appType, request);
+        Principal principal = new DefaultAppPrincipal(userid, appid);
+        DefaultAppAuthenticationDetails details = new DefaultAppAuthenticationDetails(true, request);
         Authentication authentication = new DefaultAppAuthentication(principal, details, authorityList);
         return authentication;
     }
 
-    private Authentication extractSwaggerToken(String swaggerToken, AppType appType, HttpServletRequest request) {
-        //应用标识::登录账号.用户标识::角色1,角色2
-        String[] terms = swaggerToken.split("::");
-        if (terms.length != 4 && terms.length != 3) {
-            String err = "swagger_token格式不正确，抽取令牌过程被中止，正确格式：应用标识::用户::角色1,角色2，如果某项为空但::分隔不能少";
-            log.warn(err);
-            throw new RuntimeException(err);
-        }
-        String user = terms[2];
-        if (!StringUtils.hasText(user)) {
-            throw new RuntimeException("swagger_token is not contain a user.");
-        }
-        int pos = user.lastIndexOf(".");
-        String opencode = "";
-        String userid = "";
-        if (pos < 0) {
-            opencode = user;
-        } else {
-            opencode = user.substring(0, pos);
-            userid = user.substring(pos + 1, user.length());
-        }
-        String appkey = terms[1];
-        List<GrantedAuthority> authorityList = new ArrayList<>();
 
-        if (terms.length == 4) {
-            String roles = terms[3];
+    private boolean isDirectRequest(HttpServletRequest request) {
+        //使用swagger直接访问内部应用，必须设置Authorization头，禁止通access_token访问
+        String token = request.getHeader("authorization");
+        if (StringUtils.hasText(token)) {
+            token = request.getHeader("Authorization");
+        }
+        if (!StringUtils.hasText(token)) {
+            return false;
+        }
+        return token.contains("::");
+    }
+
+    private Authentication resolverFromDirect(HttpServletRequest request) {
+        String token = request.getHeader("authorization");
+        if (StringUtils.hasText(token)) {
+            token = request.getHeader("Authorization");
+        }
+        if (!token.startsWith("Bearer") && !token.startsWith("bearer")) {
+            return null;
+        }
+        token = token.substring("bearer".length());
+        while (token.startsWith(" ")) {
+            token = token.substring(1);
+        }
+        //token格式：
+        //应用标识::用户::角色1,角色2
+        String[] terms = token.split("::");
+        if (terms.length != 3 && terms.length != 2) {
+            String err = """
+                    Swagger_ The token format is incorrect, and the token extraction process was aborted. The correct format is: Application ID:: User:: Role 1, Role 2. If an item is empty but:: Separation cannot be missing
+                    """;
+            log.warn(err);
+            OAuth2Error error = new OAuth2Error(ResultCode.OAUTH2_ERROR.code(), err, null);
+            throw new OAuth2AuthenticationException(error);
+        }
+        String user = terms[1];
+        if (!StringUtils.hasText(user)) {
+            OAuth2Error error = new OAuth2Error(ResultCode.OAUTH2_ERROR.code(), "swagger`s token is not contain a user.", null);
+            throw new OAuth2AuthenticationException(error);
+        }
+        String appid = terms[0];
+        List<GrantedAuthority> authorityList = new ArrayList<>();
+        if (terms.length == 3) {
+            String roles = terms[2];
             if (StringUtils.hasText(roles)) {
                 String roleArr[] = roles.split(",");
                 for (String role : roleArr) {
@@ -88,10 +112,11 @@ public final class DefaultTokenExtractor implements TokenExtractor {
                 }
             }
         }
-        Principal principal = new DefaultAppPrincipal( userid, appkey);
-        DefaultAppAuthenticationDetails details = new DefaultAppAuthenticationDetails(appType, request);
+        Principal principal = new DefaultAppPrincipal(user, appid);
+        DefaultAppAuthenticationDetails details = new DefaultAppAuthenticationDetails(false, request);
         Authentication authentication = new DefaultAppAuthentication(principal, details, authorityList);
         return authentication;
     }
+
 
 }

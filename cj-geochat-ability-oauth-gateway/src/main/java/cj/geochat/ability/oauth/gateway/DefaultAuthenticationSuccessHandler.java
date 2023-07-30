@@ -28,7 +28,7 @@ public class DefaultAuthenticationSuccessHandler implements ServerAuthentication
     public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
 //        ServerHttpRequest request = webFilterExchange.getExchange().getRequest();
         MultiValueMap<String, String> headerValues = new LinkedMultiValueMap<>(4);
-        headerValues.add("x-app-type", AppType.insideApp.name());
+        headerValues.add("x-from-gateway", "true");
         Object principalObj = authentication.getPrincipal();
         String x_user = "";
         String x_app_id = "";
