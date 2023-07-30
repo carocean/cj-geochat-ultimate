@@ -10,5 +10,5 @@ import java.lang.annotation.*;
 @Documented
 @Import({DefaultDataSourceConfig.class})
 //@ConditionalOnWebApplication
-public @interface EnableCjMybatis {
+public @interface EnableCjMybatisRW {
 }
