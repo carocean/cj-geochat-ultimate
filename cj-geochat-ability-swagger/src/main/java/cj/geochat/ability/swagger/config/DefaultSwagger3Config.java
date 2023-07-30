@@ -86,10 +86,24 @@ public class DefaultSwagger3Config implements BeanPostProcessor {
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         //为配置的组添加参数。这是因为：
         // 添加自定义配置，这里添加了一个用户认证的 header，否则 knife4j 里会没有 header
+//        AntPathMatcher antPathMatcher = new AntPathMatcher();
         if (SpringDocConfigProperties.class.isAssignableFrom(bean.getClass()) && properties.getToken() != null) {
             SpringDocConfigProperties springDocConfigProperties = (SpringDocConfigProperties) bean;
             springDocConfigProperties.getGroupConfigs().forEach(groupConfig -> {
                 GroupedOpenApi groupedOpenApi = (GroupedOpenApi) context.getBean(groupConfig.getGroup());
+//注掉原因：如果组的路径集合中包含有开放api，而集合中还含有非开放api，则要么全无安全参数，要么全有，这很奇怪，因此干脆全有吧。
+                //                var pathToMatches = groupedOpenApi.getPathsToMatch();
+//                //系统设为固定开放的api，这些api是不需要在swagger-ui中要求安全参数的.
+//                boolean containsPublicPath = false;
+//                for (var item : pathToMatches) {
+//                    if (groupedOpenApi.getGroup().endsWith("-public-api") && StringUtils.hasText(item) && antPathMatcher.match("/public/v{id:[0-9]+}/**", item)) {
+//                        containsPublicPath = true;
+//                        break;
+//                    }
+//                }
+//                if (containsPublicPath) {
+//                    return;
+//                }
                 groupedOpenApi.addAllOperationCustomizer(
                         Collections.singletonList(
                                 (operation, handlerMethod) -> operation.security(

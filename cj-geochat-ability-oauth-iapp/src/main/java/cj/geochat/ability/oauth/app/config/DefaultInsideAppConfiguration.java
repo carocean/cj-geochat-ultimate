@@ -83,6 +83,9 @@ public class DefaultInsideAppConfiguration {
         List<String> all = new ArrayList<>();
         all.addAll(whitelist);
         all.addAll(staticlist);
+        if (!all.contains("/public/v{id:[0-9]+}/**")) {
+            all.add("/public/v{id:[0-9]+}/**");
+        }
         if (!all.contains("/webjars/**")) {
             all.add("/webjars/**");
         }

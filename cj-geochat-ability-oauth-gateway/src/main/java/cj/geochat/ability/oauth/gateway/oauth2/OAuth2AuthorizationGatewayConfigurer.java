@@ -125,9 +125,9 @@ public class OAuth2AuthorizationGatewayConfigurer {
         List<String> all = new ArrayList<>();
         all.addAll(whitelist);
         all.addAll(staticlist);
-        if (!all.contains("/*/public/**")) {
+        if (!all.contains("/*/public/v{id:[0-9]+}/**")) {
             //开放每个微服务的公共服务，比如app后台请求token
-            all.add(0, "/*/public/**");
+            all.add(0, "/*/public/v{id:[0-9]+}/**");
         }
         if (!all.contains("/*/webjars/**")) {
             all.add("/*/webjars/**");
