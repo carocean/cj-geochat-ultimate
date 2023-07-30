@@ -85,6 +85,7 @@
             <dependency>
                 <groupId>cj.geochat</groupId>
                 <artifactId>cj-geochat-ability-web</artifactId>
+                <type>pom</type>
                 <version>1.5.0</version>
             </dependency>
             <dependency>

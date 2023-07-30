@@ -42,46 +42,51 @@ public class DefaultSwagger3Config implements BeanPostProcessor {
         Info info = properties.getInfo();
         License license = info.getLicense() == null ? new License() : info.getLicense();
         Contact contact = info.getContact() == null ? new Contact() : info.getContact();
-        SecurityScheme token = properties.getToken() == null ? new SecurityScheme() : properties.getToken();
-        ExternalDocumentation externalDocumentation = properties.getExternalDocs() == null ? new ExternalDocumentation() : properties.getExternalDocs();
+        SecurityScheme token = properties.getToken();
+        ExternalDocumentation externalDocumentation = properties.getExternalDocs();
 
-        return new OpenAPI().info(new Info()
-                        .title(info.getTitle())
-                        .description(info.getDescription())
-                        .version(info.getVersion())
-                        .summary(info.getSummary())
-                        .contact(new Contact()
-                                .name(contact.getName())
-                                .url(contact.getUrl())
-                                .email(contact.getEmail())
-                        )
-                        .license(new License()
-                                .name(license.getName())
-                                .url(license.getUrl())
-                                .identifier(license.getIdentifier())
-                        )
+        OpenAPI openAPI = new OpenAPI().info(new Info()
+                .title(info.getTitle())
+                .description(info.getDescription())
+                .version(info.getVersion())
+                .summary(info.getSummary())
+                .contact(new Contact()
+                        .name(contact.getName())
+                        .url(contact.getUrl())
+                        .email(contact.getEmail())
                 )
-                .externalDocs(externalDocumentation)
-                // 配置Authorizations
-                .components(new Components()
-                        .addSecuritySchemes(token.getName(), token)
-                        .addParameters(token.getName(), new Parameter()
-                                .name(token.getName())
-                                .in(token.getIn().name())
-                                .schema(new StringSchema().name(token.getScheme()))
-                        )
+                .license(new License()
+                        .name(license.getName())
+                        .url(license.getUrl())
+                        .identifier(license.getIdentifier())
                 )
-                .addSecurityItem(new SecurityRequirement()
-                        .addList(token.getName())
-                )
-                ;
+        );
+        if (externalDocumentation != null) {
+            openAPI.externalDocs(externalDocumentation);
+        }
+        if (token != null) {
+            openAPI.components(new Components()
+                            .addSecuritySchemes(token.getName(), token)
+                            .addParameters(token.getName(), new Parameter()
+                                    .name(token.getName())
+                                    .in(token.getIn().name())
+                                    .schema(new StringSchema().name(token.getScheme()))
+                            )
+                    )
+                    .addSecurityItem(new SecurityRequirement()
+                            .addList(token.getName())
+                    )
+            ;
+        }
+        // 配置Authorizations
+        return openAPI;
     }
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         //为配置的组添加参数。这是因为：
         // 添加自定义配置，这里添加了一个用户认证的 header，否则 knife4j 里会没有 header
-        if (SpringDocConfigProperties.class.isAssignableFrom(bean.getClass())) {
+        if (SpringDocConfigProperties.class.isAssignableFrom(bean.getClass()) && properties.getToken() != null) {
             SpringDocConfigProperties springDocConfigProperties = (SpringDocConfigProperties) bean;
             springDocConfigProperties.getGroupConfigs().forEach(groupConfig -> {
                 GroupedOpenApi groupedOpenApi = (GroupedOpenApi) context.getBean(groupConfig.getGroup());
