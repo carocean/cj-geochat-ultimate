@@ -4,6 +4,7 @@ import cj.geochat.ability.api.R;
 import cj.geochat.ability.api.ResultCode;
 import cj.geochat.ability.oauth.server.*;
 import cj.geochat.ability.oauth.server.service.OAuth2AuthorizationService;
+import cj.geochat.ability.oauth.server.user.details.GeochatUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -21,7 +22,9 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.security.Principal;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class OAuth2CheckTokenEndpointFilter extends OncePerRequestFilter {
@@ -57,20 +60,29 @@ public class OAuth2CheckTokenEndpointFilter extends OncePerRequestFilter {
         ResultCode rc = ResultCode.SUCCESS_CHECK;
 
         var map = new LinkedHashMap<>();
-        AbstractAuthenticationToken principal = authToken.getAttribute(Principal.class.getName());
-        var authorities = principal.getAuthorities();
+        AbstractAuthenticationToken authenticationToken = authToken.getAttribute(Principal.class.getName());
+        var authorities = authenticationToken.getAuthorities();
         var scopes = authToken.getAuthorizedScopes();
         var newAuthorities = scopes.stream().map(e -> String.format("SCOPE_%s", e))
                 .collect(Collectors.toList());
         newAuthorities.addAll(0, authorities.stream().map(e -> e.getAuthority()).collect(Collectors.toList()));
         var accessToken = authToken.getAccessToken();
         var oauth2Request = (OAuth2AuthorizationRequest) authToken.getAttribute(OAuth2AuthorizationRequest.class.getName());
-        map.put("principal_name", authToken.getPrincipalName());
-        if (principal.getPrincipal() instanceof User user) {
-            map.put("principal_is_enabled", user.isEnabled());
-            map.put("principal_is_account_non_expired", user.isAccountNonExpired());
-            map.put("principal_is_account_non_locked", user.isAccountNonLocked());
-            map.put("principal_is_credentials_non_expired", user.isCredentialsNonExpired());
+        Map<String, Object> userObj = new LinkedHashMap<>();
+        map.put("user", userObj);
+        if (authenticationToken.getPrincipal() instanceof GeochatUser user) {
+            userObj.put("user", user.getUsername());
+            userObj.put("account", user.getAccount());
+            userObj.put("is_enabled", user.isEnabled());
+            userObj.put("is_account_non_expired", user.isAccountNonExpired());
+            userObj.put("is_account_non_locked", user.isAccountNonLocked());
+            userObj.put("is_credentials_non_expired", user.isCredentialsNonExpired());
+        } else if(authenticationToken.getPrincipal() instanceof User user){
+            userObj.put("user", user.getUsername());
+            userObj.put("is_enabled", user.isEnabled());
+            userObj.put("is_account_non_expired", user.isAccountNonExpired());
+            userObj.put("is_account_non_locked", user.isAccountNonLocked());
+            userObj.put("is_credentials_non_expired", user.isCredentialsNonExpired());
         }
         map.put("app_id", oauth2Request.getAppId());
         map.put("state", oauth2Request.getState());

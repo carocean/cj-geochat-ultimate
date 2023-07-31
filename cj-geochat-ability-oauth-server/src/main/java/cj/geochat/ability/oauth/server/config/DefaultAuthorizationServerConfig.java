@@ -21,6 +21,7 @@ import cj.geochat.ability.oauth.server.oauth2.OAuth2AuthorizationServerConfigure
 import cj.geochat.ability.oauth.server.properties.DefaultSecurityProperties;
 import cj.geochat.ability.oauth.server.service.InMemoryOAuth2AuthorizationConsentService;
 import cj.geochat.ability.oauth.server.service.InMemoryOAuth2AuthorizationService;
+import cj.geochat.ability.oauth.server.user.details.GeochatUser;
 import cj.geochat.ability.oauth.server.util.SecurityBeanUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,10 +77,12 @@ public class DefaultAuthorizationServerConfig {
                             response.getWriter().write(new ObjectMapper().writeValueAsString(obj));
                         })
                         .successHandler((request, response, authentication) -> {
+                           GeochatUser user=(GeochatUser) authentication.getPrincipal();
                             response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
                             ResultCode rc = ResultCode.IS_AUTHORIZED;
                             Map<String, String> map = new HashMap<>();
-                            map.put("user", authentication.getName());
+                            map.put("user", user.getUsername());
+                            map.put("account", user.getAccount());
                             Object obj = R.of(rc, map);
                             response.getWriter().write(new ObjectMapper().writeValueAsString(obj));
                         })

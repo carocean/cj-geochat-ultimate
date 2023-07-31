@@ -35,13 +35,13 @@ public class RegisteredApp implements Serializable {
     private String appName;
     private Set<AuthorizationGrantType> authorizationGrantTypes;
     private Set<String> redirectUris;
-    private Set<String> postLogoutRedirectUris;
+    //    private Set<String> postLogoutRedirectUris;
     private Set<String> scopes;
     private boolean requireAuthorizationConsent;
     private boolean reuseRefreshTokens;
     private Duration authorizationCodeTimeToLive = Duration.of(5, ChronoUnit.MINUTES);
     private Duration authorizationAccessTokenTimeToLive = Duration.of(1, ChronoUnit.DAYS);
-    private Duration authorizationRefreshTokenTimeToLive= Duration.of(1, ChronoUnit.DAYS);
+    private Duration authorizationRefreshTokenTimeToLive = Duration.of(1, ChronoUnit.DAYS);
 
     protected RegisteredApp() {
     }
@@ -125,17 +125,17 @@ public class RegisteredApp implements Serializable {
         return this.redirectUris;
     }
 
-    /**
-     * Returns the post logout redirect URI(s) that the client may use for logout.
-     * The {@code post_logout_redirect_uri} parameter is used by the client when requesting
-     * that the End-User's User Agent be redirected to after a logout has been performed.
-     *
-     * @return the {@code Set} of post logout redirect URI(s)
-     * @since 1.1
-     */
-    public Set<String> getPostLogoutRedirectUris() {
-        return this.postLogoutRedirectUris;
-    }
+//    /**
+//     * Returns the post logout redirect URI(s) that the client may use for logout.
+//     * The {@code post_logout_redirect_uri} parameter is used by the client when requesting
+//     * that the End-User's User Agent be redirected to after a logout has been performed.
+//     *
+//     * @return the {@code Set} of post logout redirect URI(s)
+//     * @since 1.1
+//     */
+//    public Set<String> getPostLogoutRedirectUris() {
+//        return this.postLogoutRedirectUris;
+//    }
 
     /**
      * Returns the scope(s) that the client may use.
@@ -148,10 +148,6 @@ public class RegisteredApp implements Serializable {
 
     public boolean isReuseRefreshTokens() {
         return reuseRefreshTokens;
-    }
-
-    public void setReuseRefreshTokens(boolean reuseRefreshTokens) {
-        this.reuseRefreshTokens = reuseRefreshTokens;
     }
 
     public Duration getAuthorizationCodeTimeToLive() {
@@ -183,7 +179,7 @@ public class RegisteredApp implements Serializable {
                 Objects.equals(this.appName, that.appName) &&
                 Objects.equals(this.authorizationGrantTypes, that.authorizationGrantTypes) &&
                 Objects.equals(this.redirectUris, that.redirectUris) &&
-                Objects.equals(this.postLogoutRedirectUris, that.postLogoutRedirectUris) &&
+//                Objects.equals(this.postLogoutRedirectUris, that.postLogoutRedirectUris) &&
                 Objects.equals(this.requireAuthorizationConsent, that.requireAuthorizationConsent) &&
                 Objects.equals(this.reuseRefreshTokens, that.reuseRefreshTokens) &&
                 Objects.equals(this.authorizationCodeTimeToLive, that.authorizationCodeTimeToLive) &&
@@ -196,7 +192,7 @@ public class RegisteredApp implements Serializable {
     public int hashCode() {
         return Objects.hash(this.id, this.appId, this.appIdIssuedAt, this.appSecret, this.appSecretExpiresAt,
                 this.appName, this.authorizationGrantTypes, this.redirectUris,
-                this.postLogoutRedirectUris, this.requireAuthorizationConsent,this.reuseRefreshTokens, this.authorizationCodeTimeToLive,this.authorizationAccessTokenTimeToLive,this.authorizationRefreshTokenTimeToLive, this.scopes);
+                /*this.postLogoutRedirectUris,*/ this.requireAuthorizationConsent, this.reuseRefreshTokens, this.authorizationCodeTimeToLive, this.authorizationAccessTokenTimeToLive, this.authorizationRefreshTokenTimeToLive, this.scopes);
     }
 
     @Override
@@ -207,7 +203,7 @@ public class RegisteredApp implements Serializable {
                 ", clientName='" + this.appName + '\'' +
                 ", authorizationGrantTypes=" + this.authorizationGrantTypes +
                 ", redirectUris=" + this.redirectUris +
-                ", postLogoutRedirectUris=" + this.postLogoutRedirectUris +
+//                ", postLogoutRedirectUris=" + this.postLogoutRedirectUris +
                 ", requireAuthorizationConsent=" + this.requireAuthorizationConsent +
                 ", reuseRefreshTokens=" + this.reuseRefreshTokens +
                 ", authorizationCodeTimeToLive=" + this.authorizationCodeTimeToLive +
@@ -252,8 +248,13 @@ public class RegisteredApp implements Serializable {
         private boolean requireAuthorizationConsent;
         private final Set<AuthorizationGrantType> authorizationGrantTypes = new HashSet<>();
         private final Set<String> redirectUris = new HashSet<>();
-        private final Set<String> postLogoutRedirectUris = new HashSet<>();
+        //        private final Set<String> postLogoutRedirectUris = new HashSet<>();
         private final Set<String> scopes = new HashSet<>();
+
+        private boolean reuseRefreshTokens;
+        private Duration authorizationCodeTimeToLive;
+        private Duration authorizationAccessTokenTimeToLive;
+        private Duration authorizationRefreshTokenTimeToLive;
 
         protected Builder(String id) {
             this.id = id;
@@ -272,12 +273,16 @@ public class RegisteredApp implements Serializable {
             if (!CollectionUtils.isEmpty(registeredApp.getRedirectUris())) {
                 this.redirectUris.addAll(registeredApp.getRedirectUris());
             }
-            if (!CollectionUtils.isEmpty(registeredApp.getPostLogoutRedirectUris())) {
-                this.postLogoutRedirectUris.addAll(registeredApp.getPostLogoutRedirectUris());
-            }
+//            if (!CollectionUtils.isEmpty(registeredApp.getPostLogoutRedirectUris())) {
+//                this.postLogoutRedirectUris.addAll(registeredApp.getPostLogoutRedirectUris());
+//            }
             if (!CollectionUtils.isEmpty(registeredApp.getScopes())) {
                 this.scopes.addAll(registeredApp.getScopes());
             }
+            this.reuseRefreshTokens = registeredApp.isReuseRefreshTokens();
+            this.authorizationCodeTimeToLive = registeredApp.getAuthorizationCodeTimeToLive();
+            this.authorizationAccessTokenTimeToLive = registeredApp.getAuthorizationAccessTokenTimeToLive();
+            this.authorizationRefreshTokenTimeToLive = registeredApp.authorizationRefreshTokenTimeToLive;
         }
 
         /**
@@ -393,32 +398,32 @@ public class RegisteredApp implements Serializable {
             return this;
         }
 
-        /**
-         * Adds a post logout redirect URI the client may use for logout.
-         * The {@code post_logout_redirect_uri} parameter is used by the client when requesting
-         * that the End-User's User Agent be redirected to after a logout has been performed.
-         *
-         * @param postLogoutRedirectUri the post logout redirect URI
-         * @return the {@link Builder}
-         * @since 1.1
-         */
-        public Builder postLogoutRedirectUri(String postLogoutRedirectUri) {
-            this.postLogoutRedirectUris.add(postLogoutRedirectUri);
-            return this;
-        }
+//        /**
+//         * Adds a post logout redirect URI the client may use for logout.
+//         * The {@code post_logout_redirect_uri} parameter is used by the client when requesting
+//         * that the End-User's User Agent be redirected to after a logout has been performed.
+//         *
+//         * @param postLogoutRedirectUri the post logout redirect URI
+//         * @return the {@link Builder}
+//         * @since 1.1
+//         */
+//        public Builder postLogoutRedirectUri(String postLogoutRedirectUri) {
+//            this.postLogoutRedirectUris.add(postLogoutRedirectUri);
+//            return this;
+//        }
 
-        /**
-         * A {@code Consumer} of the post logout redirect URI(s)
-         * allowing the ability to add, replace, or remove.
-         *
-         * @param postLogoutRedirectUrisConsumer a {@link Consumer} of the post logout redirect URI(s)
-         * @return the {@link Builder}
-         * @since 1.1
-         */
-        public Builder postLogoutRedirectUris(Consumer<Set<String>> postLogoutRedirectUrisConsumer) {
-            postLogoutRedirectUrisConsumer.accept(this.postLogoutRedirectUris);
-            return this;
-        }
+//        /**
+//         * A {@code Consumer} of the post logout redirect URI(s)
+//         * allowing the ability to add, replace, or remove.
+//         *
+//         * @param postLogoutRedirectUrisConsumer a {@link Consumer} of the post logout redirect URI(s)
+//         * @return the {@link Builder}
+//         * @since 1.1
+//         */
+//        public Builder postLogoutRedirectUris(Consumer<Set<String>> postLogoutRedirectUrisConsumer) {
+//            postLogoutRedirectUrisConsumer.accept(this.postLogoutRedirectUris);
+//            return this;
+//        }
 
         /**
          * Adds a scope the client may use.
@@ -448,6 +453,26 @@ public class RegisteredApp implements Serializable {
             return this;
         }
 
+        public Builder reuseRefreshTokens(boolean reuseRefreshTokens) {
+            this.reuseRefreshTokens = reuseRefreshTokens;
+            return this;
+        }
+
+        public Builder authorizationAccessTokenTimeToLive(Duration authorizationAccessTokenTimeToLive) {
+            this.authorizationAccessTokenTimeToLive = authorizationAccessTokenTimeToLive;
+            return this;
+        }
+
+        public Builder authorizationCodeTimeToLive(Duration authorizationCodeTimeToLive) {
+            this.authorizationCodeTimeToLive = authorizationCodeTimeToLive;
+            return this;
+        }
+
+        public Builder authorizationRefreshTokenTimeToLive(Duration authorizationRefreshTokenTimeToLive) {
+            this.authorizationRefreshTokenTimeToLive = authorizationRefreshTokenTimeToLive;
+            return this;
+        }
+
         /**
          * Builds a new {@link RegisteredApp}.
          *
@@ -465,7 +490,7 @@ public class RegisteredApp implements Serializable {
 
             validateScopes();
             validateRedirectUris();
-            validatePostLogoutRedirectUris();
+//            validatePostLogoutRedirectUris();
             return create();
         }
 
@@ -483,8 +508,8 @@ public class RegisteredApp implements Serializable {
                     new HashSet<>(this.authorizationGrantTypes));
             registeredApp.redirectUris = Collections.unmodifiableSet(
                     new HashSet<>(this.redirectUris));
-            registeredApp.postLogoutRedirectUris = Collections.unmodifiableSet(
-                    new HashSet<>(this.postLogoutRedirectUris));
+//            registeredApp.postLogoutRedirectUris = Collections.unmodifiableSet(
+//                    new HashSet<>(this.postLogoutRedirectUris));
             registeredApp.scopes = Collections.unmodifiableSet(
                     new HashSet<>(this.scopes));
 
@@ -522,17 +547,17 @@ public class RegisteredApp implements Serializable {
                         "redirect_uri \"" + redirectUri + "\" is not a valid redirect URI or contains fragment");
             }
         }
-
-        private void validatePostLogoutRedirectUris() {
-            if (CollectionUtils.isEmpty(this.postLogoutRedirectUris)) {
-                return;
-            }
-
-            for (String postLogoutRedirectUri : this.postLogoutRedirectUris) {
-                Assert.isTrue(validateRedirectUri(postLogoutRedirectUri),
-                        "post_logout_redirect_uri \"" + postLogoutRedirectUri + "\" is not a valid post logout redirect URI or contains fragment");
-            }
-        }
+//
+//        private void validatePostLogoutRedirectUris() {
+//            if (CollectionUtils.isEmpty(this.postLogoutRedirectUris)) {
+//                return;
+//            }
+//
+//            for (String postLogoutRedirectUri : this.postLogoutRedirectUris) {
+//                Assert.isTrue(validateRedirectUri(postLogoutRedirectUri),
+//                        "post_logout_redirect_uri \"" + postLogoutRedirectUri + "\" is not a valid post logout redirect URI or contains fragment");
+//            }
+//        }
 
         private static boolean validateRedirectUri(String redirectUri) {
             try {

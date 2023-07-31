@@ -81,12 +81,12 @@ public final class AppSecretAuthenticationProvider implements AuthenticationProv
 			throwInvalidClient("client_secret_expires_at");
 		}
 
-		if (this.passwordEncoder.upgradeEncoding(registeredApp.getAppSecret())) {
-			registeredApp = RegisteredApp.from(registeredApp)
-					.appSecret(this.passwordEncoder.encode(clientSecret))
-					.build();
-			this.registeredAppRepository.save(registeredApp);
-		}
+//		if (this.passwordEncoder.upgradeEncoding(registeredApp.getAppSecret())) {
+//			registeredApp = RegisteredApp.from(registeredApp)
+//					.appSecret(this.passwordEncoder.encode(clientSecret))
+//					.build();
+//			this.registeredAppRepository.save(registeredApp);
+//		}
 
 		if (this.logger.isTraceEnabled()) {
 			this.logger.trace("Validated client authentication parameters");

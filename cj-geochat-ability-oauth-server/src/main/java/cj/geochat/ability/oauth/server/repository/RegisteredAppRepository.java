@@ -13,26 +13,26 @@ import org.springframework.lang.Nullable;
  * @since 0.0.1
  */
 public interface RegisteredAppRepository {
+//
+//	/**
+//	 * Saves the registered client.
+//	 *
+//	 * <p>
+//	 * IMPORTANT: Sensitive information should be encoded externally from the implementation, e.g. {@link RegisteredApp#getAppSecret()}
+//	 *
+//	 * @param registeredApp the {@link RegisteredApp}
+//	 */
+//	void save(RegisteredApp registeredApp);
 
-	/**
-	 * Saves the registered client.
-	 *
-	 * <p>
-	 * IMPORTANT: Sensitive information should be encoded externally from the implementation, e.g. {@link RegisteredApp#getAppSecret()}
-	 *
-	 * @param registeredApp the {@link RegisteredApp}
-	 */
-	void save(RegisteredApp registeredApp);
-
-	/**
-	 * Returns the registered client identified by the provided {@code id},
-	 * or {@code null} if not found.
-	 *
-	 * @param id the registration identifier
-	 * @return the {@link RegisteredApp} if found, otherwise {@code null}
-	 */
-	@Nullable
-	RegisteredApp findById(String id);
+//	/**
+//	 * Returns the registered client identified by the provided {@code id},
+//	 * or {@code null} if not found.
+//	 *
+//	 * @param id the registration identifier
+//	 * @return the {@link RegisteredApp} if found, otherwise {@code null}
+//	 */
+//	@Nullable
+//	RegisteredApp findById(String id);
 
 	/**
 	 * Returns the registered client identified by the provided {@code clientId},
