@@ -20,10 +20,6 @@ import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
 
 import javax.sql.DataSource;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -71,12 +67,6 @@ public class DefaultDataSourceConfig {
         return new DataSourceTransactionManager(routingDataSource());
     }
 
-
-    //定义一个注解 任何方法加上该注解 标注为只读方法
-    @Target({ElementType.METHOD, ElementType.TYPE})
-    @Retention(RetentionPolicy.RUNTIME)
-    public @interface ReadOnly {
-    }
 
     //配置sqlsession工厂 让它走我们自定义的数据源
     @Bean

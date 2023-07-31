@@ -1,6 +1,6 @@
 package cj.geochat.ability.mybatis;
 
-import cj.geochat.ability.mybatis.config.DefaultDataSourceConfig;
+import cj.geochat.ability.mybatis.config.AccessDBPolicy;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -15,7 +15,7 @@ public class ReadOnlyInterceptor implements Ordered {
 
     //切入的条件 标注该注解的方法 （只能标注在service层）
     @Around("@annotation(readOnly)")
-    public Object setRead(ProceedingJoinPoint joinPoint, DefaultDataSourceConfig.ReadOnly readOnly) throws Throwable {
+    public Object setRead(ProceedingJoinPoint joinPoint, AccessDBPolicy.ReadOnly readOnly) throws Throwable {
         try {
             DataSourceContext.setDbType(DataSourceContext.READ);
             return joinPoint.proceed();
