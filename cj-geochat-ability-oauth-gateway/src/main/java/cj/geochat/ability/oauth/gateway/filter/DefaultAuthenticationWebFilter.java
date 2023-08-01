@@ -94,7 +94,6 @@ public class DefaultAuthenticationWebFilter implements WebFilter {
 
 	@Override
 	public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
-		wrapperSwaggerHeader(exchange);
 		return this.requiresAuthenticationMatcher.matches(exchange).filter((matchResult) -> matchResult.isMatch())
 				.flatMap((matchResult) -> this.authenticationConverter.convert(exchange))
 				.switchIfEmpty(chain.filter(exchange).then(Mono.empty()))
@@ -103,23 +102,7 @@ public class DefaultAuthenticationWebFilter implements WebFilter {
 						.onAuthenticationFailure(new WebFilterExchange(exchange, chain), ex));
 	}
 
-	private void wrapperSwaggerHeader(ServerWebExchange exchange) {
-		ServerHttpRequest request = exchange.getRequest();
-		String swaggerToken = request.getHeaders().getFirst("swagger_token");
-		if (StringUtils.hasText(swaggerToken)) {
-			String access_token = request.getQueryParams().getFirst("access_token");
-			if (!StringUtils.hasText(access_token)) {
-				access_token = request.getHeaders().getFirst("access_token");
-			}
-			if (!StringUtils.hasText(access_token)) {
-				access_token = request.getHeaders().getFirst("Authorization");
-			}
-			if (!StringUtils.hasText(access_token)) {
-				String auth_term = String.format("Bearer %s", swaggerToken);
-				request.mutate().header("Authorization", auth_term);
-			}
-		}
-	}
+
 	private Mono<Void> authenticate(ServerWebExchange exchange, WebFilterChain chain, Authentication token) {
 		return this.authenticationManagerResolver.resolve(exchange)
 				.flatMap((authenticationManager) -> authenticationManager.authenticate(token))

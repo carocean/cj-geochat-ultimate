@@ -7,6 +7,7 @@ import cj.geochat.ability.oauth.server.convert.DelegatingResponseTypeConverter;
 import cj.geochat.ability.oauth.server.convert.IAuthenticationConverter;
 import cj.geochat.ability.oauth.server.entrypoint.authorize.consent.OAuth2AuthorizationConsentAuthenticationToken;
 import cj.geochat.ability.oauth.server.entrypoint.authorize.request.OAuth2AuthorizationCodeRequestAuthenticationToken;
+import cj.geochat.ability.oauth.server.user.details.GeochatUser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -124,7 +125,7 @@ public class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilter {
                                           OAuth2AuthorizationConsentAuthenticationToken authorizationConsentAuthentication) throws IOException {
 
         String appId = authorizationConsentAuthentication.getAppId();
-        Authentication principal = (Authentication) authorizationConsentAuthentication.getPrincipal();
+        Authentication authentication = (Authentication) authorizationConsentAuthentication.getPrincipal();
         Set<String> requestedScopes = authorizationCodeRequestAuthentication.getScopes();
 //        Set<String> authorizedScopes = authorizationConsentAuthentication.getScopes();
         String state = authorizationConsentAuthentication.getState();
@@ -139,7 +140,12 @@ public class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilter {
         ResultCode rc = ResultCode.REQUIRE_CONSENT;
 
         Map<String, Object> body = new HashMap<>();
-        body.put("user", principal.getName());
+        if (authentication.getPrincipal() instanceof GeochatUser user) {
+            body.put("user", user.getUsername());
+            body.put("account", user.getAccount());
+        } else {
+            body.put("user", authentication.getName());
+        }
         body.put("app_id", appId);
         body.put("redirect_uri", redirectUri);
         body.put("scope", requestedScopes.stream().collect(Collectors.joining(" ")));
@@ -177,7 +183,16 @@ public class OAuth2AuthorizationEndpointFilter extends OncePerRequestFilter {
         ResultCode rc = ResultCode.SUCCESS_CODE;
 
         Map<String, Object> body = new HashMap<>();
-        body.put("user", authentication.getName());
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof AbstractAuthenticationToken authenticationToken && authenticationToken.getPrincipal() != null) {
+            principal = authenticationToken.getPrincipal();
+        }
+        if (principal instanceof GeochatUser user) {
+            body.put("user", user.getUsername());
+            body.put("account", user.getAccount());
+        } else {
+            body.put("user", authentication.getName());
+        }
         body.put("app_id", authorizationCodeRequestAuthentication.getAppId());
         body.put("redirect_uri", redirectUri);
         body.put("scope", authorizationCodeRequestAuthentication.getScopes().stream().collect(Collectors.joining(" ")));

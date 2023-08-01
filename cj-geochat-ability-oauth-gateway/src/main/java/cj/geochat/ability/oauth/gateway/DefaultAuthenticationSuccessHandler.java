@@ -31,16 +31,19 @@ public class DefaultAuthenticationSuccessHandler implements ServerAuthentication
         headerValues.add("x-from-gateway", "true");
         Object principalObj = authentication.getPrincipal();
         String x_user = "";
+        String x_account = "";
         String x_app_id = "";
         //客户端也可自定一个User来安放登录身份
         if (principalObj instanceof DefaultAppPrincipal principal) {
             x_user = principal.getName();
+            x_account=principal.getAccount();
             x_app_id = principal.getAppid();
         } else {
             User user = (User) principalObj;
             x_user = user.getUsername();
         }
         headerValues.add("x-user", x_user);
+        headerValues.add("x-account", x_account);
         headerValues.add("x-app-id", x_app_id);
 
         String roles = "";

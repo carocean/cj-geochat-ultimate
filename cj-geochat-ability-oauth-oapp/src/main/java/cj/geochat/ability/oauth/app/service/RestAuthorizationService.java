@@ -52,11 +52,12 @@ public class RestAuthorizationService implements OAuth2AuthorizationService {
             throw new OAuth2AuthenticationException(error);
         }
         obj = (Map<String, Object>) obj.get("data");
-        DefaultAppPrincipal principal = new DefaultAppPrincipal((String) obj.get("principal_name"), (String) obj.get("app_id"));
-        principal.setEnabled((Boolean) obj.get("principal_is_enabled"));
-        principal.setEnabled((Boolean) obj.get("principal_is_account_non_expired"));
-        principal.setEnabled((Boolean) obj.get("principal_is_account_non_locked"));
-        principal.setEnabled((Boolean) obj.get("principal_is_credentials_non_expired"));
+        Map<String, Object> userMap = (Map<String, Object>) obj.get("user");
+        DefaultAppPrincipal principal = new DefaultAppPrincipal((String) userMap.get("user"),(String) userMap.get("account"), (String) obj.get("app_id"));
+        principal.setEnabled((Boolean) userMap.get("is_enabled"));
+        principal.setAccountNonExpired((Boolean) userMap.get("is_account_non_expired"));
+        principal.setAccountNonLocked((Boolean) userMap.get("is_account_non_locked"));
+        principal.setCredentialsNonExpire((Boolean) userMap.get("is_credentials_non_expired"));
         DefaultAppAuthenticationDetails appDetails = new DefaultAppAuthenticationDetails(AppType.outsideApp, details);
         String authoritiesSrc = (String) obj.get("authorities");
         String[] authorArr = authoritiesSrc.split(",");

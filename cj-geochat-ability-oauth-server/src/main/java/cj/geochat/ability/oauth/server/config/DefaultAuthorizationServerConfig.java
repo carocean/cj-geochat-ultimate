@@ -77,7 +77,7 @@ public class DefaultAuthorizationServerConfig {
                             response.getWriter().write(new ObjectMapper().writeValueAsString(obj));
                         })
                         .successHandler((request, response, authentication) -> {
-                           GeochatUser user=(GeochatUser) authentication.getPrincipal();
+                            GeochatUser user = (GeochatUser) authentication.getPrincipal();
                             response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
                             ResultCode rc = ResultCode.IS_AUTHORIZED;
                             Map<String, String> map = new HashMap<>();

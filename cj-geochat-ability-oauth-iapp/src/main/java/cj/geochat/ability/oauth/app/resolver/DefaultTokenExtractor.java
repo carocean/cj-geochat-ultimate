@@ -45,6 +45,7 @@ public final class DefaultTokenExtractor implements TokenExtractor {
 
     private Authentication resolveFromGateway(HttpServletRequest request) {
         String userid = request.getHeader("x-user");
+        String account = request.getHeader("x-account");
         String appid = request.getHeader("x-app-id");
         List<GrantedAuthority> authorityList = new ArrayList<>();
         String roles = request.getHeader("x-roles");
@@ -54,7 +55,7 @@ public final class DefaultTokenExtractor implements TokenExtractor {
                 authorityList.add(new SimpleGrantedAuthority(role));
             }
         }
-        Principal principal = new DefaultAppPrincipal(userid, appid);
+        Principal principal = new DefaultAppPrincipal(userid, account, appid);
         DefaultAppAuthenticationDetails details = new DefaultAppAuthenticationDetails(true, request);
         Authentication authentication = new DefaultAppAuthentication(principal, details, authorityList);
         return authentication;
@@ -86,7 +87,7 @@ public final class DefaultTokenExtractor implements TokenExtractor {
             token = token.substring(1);
         }
         //token格式：
-        //应用标识::用户::角色1,角色2
+        //应用标识::账户.用户::角色1,角色2
         String[] terms = token.split("::");
         if (terms.length != 3 && terms.length != 2) {
             String err = """
@@ -96,10 +97,20 @@ public final class DefaultTokenExtractor implements TokenExtractor {
             OAuth2Error error = new OAuth2Error(ResultCode.OAUTH2_ERROR.code(), err, null);
             throw new OAuth2AuthenticationException(error);
         }
-        String user = terms[1];
-        if (!StringUtils.hasText(user)) {
+        String userAndAccount = terms[1];
+        if (!StringUtils.hasText(userAndAccount)) {
             OAuth2Error error = new OAuth2Error(ResultCode.OAUTH2_ERROR.code(), "swagger`s token is not contain a user.", null);
             throw new OAuth2AuthenticationException(error);
+        }
+        String account = "";
+        String user = "";
+        int pos = userAndAccount.lastIndexOf(".");
+        //即缺少账户，userAndAccount当作用户串
+        if (pos < 0) {
+            user=userAndAccount;
+        }else{
+            account = userAndAccount.substring(0, pos);
+            user = userAndAccount.substring(pos+1);
         }
         String appid = terms[0];
         List<GrantedAuthority> authorityList = new ArrayList<>();
@@ -112,7 +123,7 @@ public final class DefaultTokenExtractor implements TokenExtractor {
                 }
             }
         }
-        Principal principal = new DefaultAppPrincipal(user, appid);
+        Principal principal = new DefaultAppPrincipal(user,account, appid);
         DefaultAppAuthenticationDetails details = new DefaultAppAuthenticationDetails(false, request);
         Authentication authentication = new DefaultAppAuthentication(principal, details, authorityList);
         return authentication;

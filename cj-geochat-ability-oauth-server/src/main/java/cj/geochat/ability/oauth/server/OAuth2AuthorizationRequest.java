@@ -85,7 +85,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
         private String authorizationUri;
         private AuthorizationGrantType authorizationGrantType;
         private OAuth2AuthorizationResponseType responseType;
-        private String clientId;
+        private String appId;
         private String redirectUri;
         private Set<String> scopes;
         private String state;
@@ -116,7 +116,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
         }
 
         public Builder clientId(String clientId) {
-            this.clientId = clientId;
+            this.appId = clientId;
             return this;
         }
 
@@ -194,12 +194,12 @@ public final class OAuth2AuthorizationRequest implements Serializable {
 
         public OAuth2AuthorizationRequest build() {
             Assert.hasText(this.authorizationUri, "authorizationUri cannot be empty");
-            Assert.hasText(this.clientId, "clientId cannot be empty");
+            Assert.hasText(this.appId, "clientId cannot be empty");
             OAuth2AuthorizationRequest authorizationRequest = new OAuth2AuthorizationRequest();
             authorizationRequest.authorizationUri = this.authorizationUri;
             authorizationRequest.authorizationGrantType = this.authorizationGrantType;
             authorizationRequest.responseType = this.responseType;
-            authorizationRequest.appId = this.clientId;
+            authorizationRequest.appId = this.appId;
             authorizationRequest.redirectUri = this.redirectUri;
             authorizationRequest.state = this.state;
             authorizationRequest.scopes = Collections.unmodifiableSet((Set)(CollectionUtils.isEmpty(this.scopes) ? Collections.emptySet() : new LinkedHashSet(this.scopes)));
@@ -223,7 +223,7 @@ public final class OAuth2AuthorizationRequest implements Serializable {
         private Map<String, Object> getParameters() {
             Map<String, Object> parameters = new LinkedHashMap();
             parameters.put("response_type", this.responseType.getValue());
-            parameters.put("client_id", this.clientId);
+            parameters.put("app_id", this.appId);
             if (!CollectionUtils.isEmpty(this.scopes)) {
                 parameters.put("scope", StringUtils.collectionToDelimitedString(this.scopes, " "));
             }

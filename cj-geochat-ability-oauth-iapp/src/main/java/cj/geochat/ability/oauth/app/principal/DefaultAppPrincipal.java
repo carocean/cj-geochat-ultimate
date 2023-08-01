@@ -7,6 +7,7 @@ import java.security.Principal;
 public class DefaultAppPrincipal implements Principal {
 
     String user;
+    String account;
     String appid;
     boolean enabled;
     boolean accountNonExpired;
@@ -16,8 +17,9 @@ public class DefaultAppPrincipal implements Principal {
     public DefaultAppPrincipal() {
     }
 
-    public DefaultAppPrincipal(String user, String appid) {
+    public DefaultAppPrincipal(String user,String account, String appid) {
         this.user = user;
+        this.account=account;
         this.appid = appid;
         enabled = true;
         accountNonExpired = true;
@@ -33,6 +35,10 @@ public class DefaultAppPrincipal implements Principal {
     @Override
     public String getName() {
         return user;
+    }
+
+    public String getAccount() {
+        return account;
     }
 
     public boolean isEnabled() {
@@ -70,6 +76,7 @@ public class DefaultAppPrincipal implements Principal {
     @Override
     public String toString() {
         String fullName = (StringUtils.hasText(appid) ? appid + "::" : "")
+                + (StringUtils.hasText(account) ? account+"." : "")
                 + (StringUtils.hasText(user) ? user : "");
         return fullName;
     }
