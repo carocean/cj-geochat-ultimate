@@ -193,7 +193,7 @@ public class OAuth2AuthorizationCodeRequestAuthenticationProvider implements Aut
 
     private static OAuth2Authorization.Builder authorizationBuilder(RegisteredApp registeredApp, Authentication principal,
                                                                     OAuth2AuthorizationRequest authorizationRequest) {
-        return OAuth2Authorization.withRegisteredClient(registeredApp)
+        return OAuth2Authorization.withRegisteredApp(registeredApp)
                 .principalName(principal.getName())
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .attribute(Principal.class.getName(), principal)

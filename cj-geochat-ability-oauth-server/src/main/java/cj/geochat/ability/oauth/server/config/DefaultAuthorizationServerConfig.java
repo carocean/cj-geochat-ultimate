@@ -103,8 +103,8 @@ public class DefaultAuthorizationServerConfig {
                                                 .authenticationProvider(new OAuth2AuthorizationCodeRequestAuthenticationProvider())
                                                 .authenticationProvider(new OAuth2AuthorizationConsentAuthenticationProvider())
 //                                .registeredAppRepository(new InMemoryRegisteredAppRepository(Arrays.asList()))
-                                                .authorizationService(new InMemoryOAuth2AuthorizationService())
-                                                .authorizationConsentService(new InMemoryOAuth2AuthorizationConsentService())
+//                                                .authorizationService(new InMemoryOAuth2AuthorizationService())
+//                                                .authorizationConsentService(new InMemoryOAuth2AuthorizationConsentService())
                                                 .authorizationCodeGenerator(null)
                                 )
                                 .tokenEndpoint(tokenEndpointConfigurer -> tokenEndpointConfigurer

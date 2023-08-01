@@ -120,14 +120,14 @@ public final class OAuth2AuthorizationConsent implements Serializable {
 	 * Returns a new {@link Builder}, initialized with the given {@link RegisteredApp#getAppId() registeredClientId}
 	 * and {@code Principal} name.
 	 *
-	 * @param registeredClientId the {@link RegisteredApp#getId()}
+	 * @param registeredAppId the {@link RegisteredApp#getId()}
 	 * @param principalName the  {@code Principal} name
 	 * @return the {@link Builder}
 	 */
-	public static Builder withId(@NonNull String registeredClientId, @NonNull String principalName) {
-		Assert.hasText(registeredClientId, "registeredClientId cannot be empty");
+	public static Builder withId(@NonNull String registeredAppId, @NonNull String principalName) {
+		Assert.hasText(registeredAppId, "registeredClientId cannot be empty");
 		Assert.hasText(principalName, "principalName cannot be empty");
-		return new Builder(registeredClientId, principalName);
+		return new Builder(registeredAppId, principalName);
 	}
 
 
@@ -137,16 +137,16 @@ public final class OAuth2AuthorizationConsent implements Serializable {
 	public static final class Builder implements Serializable {
 		private static final long serialVersionUID = SpringAuthorizationServerVersion.SERIAL_VERSION_UID;
 
-		private final String registeredClientId;
+		private final String registeredAppId;
 		private final String principalName;
 		private final Set<GrantedAuthority> authorities = new HashSet<>();
 
-		private Builder(String registeredClientId, String principalName) {
-			this(registeredClientId, principalName, Collections.emptySet());
+		private Builder(String registeredAppId, String principalName) {
+			this(registeredAppId, principalName, Collections.emptySet());
 		}
 
-		private Builder(String registeredClientId, String principalName, Set<GrantedAuthority> authorities) {
-			this.registeredClientId = registeredClientId;
+		private Builder(String registeredAppId, String principalName, Set<GrantedAuthority> authorities) {
+			this.registeredAppId = registeredAppId;
 			this.principalName = principalName;
 			if (!CollectionUtils.isEmpty(authorities)) {
 				this.authorities.addAll(authorities);
@@ -197,7 +197,7 @@ public final class OAuth2AuthorizationConsent implements Serializable {
 		 */
 		public OAuth2AuthorizationConsent build() {
 			Assert.notEmpty(this.authorities, "authorities cannot be empty");
-			return new OAuth2AuthorizationConsent(this.registeredClientId, this.principalName, this.authorities);
+			return new OAuth2AuthorizationConsent(this.registeredAppId, this.principalName, this.authorities);
 		}
 	}
 }

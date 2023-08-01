@@ -189,11 +189,20 @@ public class OAuth2Authorization implements Serializable {
 	 * @param registeredApp the {@link RegisteredApp}
 	 * @return the {@link Builder}
 	 */
-	public static Builder withRegisteredClient(RegisteredApp registeredApp) {
+	public static Builder withRegisteredApp(RegisteredApp registeredApp) {
 		Assert.notNull(registeredApp, "registeredApp cannot be null");
 		return new Builder(registeredApp.getId());
 	}
-
+	/**
+	 * Returns a new {@link Builder}, initialized with the provided {@link RegisteredApp#getId()}.
+	 *
+	 * @param registeredAppId the {@link RegisteredApp#getId()}
+	 * @return the {@link Builder}
+	 */
+	public static Builder withIdOfApp(String registeredAppId) {
+		Assert.notNull(registeredAppId, "registeredAppId cannot be null");
+		return new Builder(registeredAppId);
+	}
 	/**
 	 * Returns a new {@link Builder}, initialized with the values from the provided {@code OAuth2Authorization}.
 	 *
@@ -357,15 +366,15 @@ public class OAuth2Authorization implements Serializable {
 	public static class Builder implements Serializable {
 		private static final long serialVersionUID = SpringAuthorizationServerVersion.SERIAL_VERSION_UID;
 		private String id;
-		private final String registeredClientId;
+		private final String registeredAppId;
 		private String principalName;
 		private AuthorizationGrantType authorizationGrantType;
 		private Set<String> authorizedScopes;
 		private Map<Class<? extends OAuth2Token>, Token<?>> tokens = new HashMap<>();
 		private final Map<String, Object> attributes = new HashMap<>();
 
-		protected Builder(String registeredClientId) {
-			this.registeredClientId = registeredClientId;
+		protected Builder(String registeredAppId) {
+			this.registeredAppId = registeredAppId;
 		}
 
 		/**
@@ -512,7 +521,7 @@ public class OAuth2Authorization implements Serializable {
 				this.id = UUID.randomUUID().toString();
 			}
 			authorization.id = this.id;
-			authorization.registeredAppId = this.registeredClientId;
+			authorization.registeredAppId = this.registeredAppId;
 			authorization.principalName = this.principalName;
 			authorization.authorizationGrantType = this.authorizationGrantType;
 			authorization.authorizedScopes =
