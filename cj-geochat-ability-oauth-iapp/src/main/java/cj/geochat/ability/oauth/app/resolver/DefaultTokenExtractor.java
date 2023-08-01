@@ -55,9 +55,9 @@ public final class DefaultTokenExtractor implements TokenExtractor {
                 authorityList.add(new SimpleGrantedAuthority(role));
             }
         }
-        Principal principal = new DefaultAppPrincipal(userid, account, appid);
+        DefaultAppPrincipal principal = new DefaultAppPrincipal(userid, account, appid,authorityList);
         DefaultAppAuthenticationDetails details = new DefaultAppAuthenticationDetails(true, request);
-        Authentication authentication = new DefaultAppAuthentication(principal, details, authorityList);
+        Authentication authentication = new DefaultAppAuthentication(principal, details);
         return authentication;
     }
 
@@ -123,9 +123,9 @@ public final class DefaultTokenExtractor implements TokenExtractor {
                 }
             }
         }
-        Principal principal = new DefaultAppPrincipal(user,account, appid);
+        DefaultAppPrincipal principal = new DefaultAppPrincipal(user,account, appid,authorityList);
         DefaultAppAuthenticationDetails details = new DefaultAppAuthenticationDetails(false, request);
-        Authentication authentication = new DefaultAppAuthentication(principal, details, authorityList);
+        Authentication authentication = new DefaultAppAuthentication(principal, details);
         return authentication;
     }
 

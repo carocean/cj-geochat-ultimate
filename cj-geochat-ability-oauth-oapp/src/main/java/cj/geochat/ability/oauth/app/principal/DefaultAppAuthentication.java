@@ -7,22 +7,21 @@ import java.security.Principal;
 import java.util.Collection;
 
 public class DefaultAppAuthentication implements Authentication {
-    Principal principal;
-    Collection<? extends GrantedAuthority> authorities;
+    DefaultAppPrincipal principal;
+
     boolean isAuthenticated;
     DefaultAppAuthenticationDetails details;
 
-    public DefaultAppAuthentication(Principal principal, DefaultAppAuthenticationDetails details, Collection<? extends GrantedAuthority> authorities) {
+    public DefaultAppAuthentication(DefaultAppPrincipal principal, DefaultAppAuthenticationDetails details) {
         this.principal = principal;
-        this.authorities = authorities;
         this.details = details;
-        isAuthenticated=true;
+        this.isAuthenticated=true;
     }
 
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return authorities;
+        return principal.getAuthorities();
     }
 
     @Override

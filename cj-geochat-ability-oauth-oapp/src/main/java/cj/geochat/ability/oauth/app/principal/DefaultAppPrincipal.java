@@ -1,8 +1,11 @@
 package cj.geochat.ability.oauth.app.principal;
 
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.StringUtils;
 
 import java.security.Principal;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 public class DefaultAppPrincipal implements Principal {
 
@@ -13,14 +16,15 @@ public class DefaultAppPrincipal implements Principal {
     boolean accountNonExpired;
     boolean accountNonLocked;
     boolean credentialsNonExpire;
-
+    Collection<? extends GrantedAuthority> authorities;
     public DefaultAppPrincipal() {
     }
 
-    public DefaultAppPrincipal(String user,String account, String appid) {
+    public DefaultAppPrincipal(String user,String account, String appid,Collection<? extends GrantedAuthority> authorities) {
         this.user = user;
         this.account=account;
         this.appid = appid;
+        this.authorities=authorities;
         enabled = true;
         accountNonExpired = true;
         accountNonLocked = true;
@@ -39,6 +43,10 @@ public class DefaultAppPrincipal implements Principal {
 
     public String getAccount() {
         return account;
+    }
+
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return authorities;
     }
 
     public boolean isEnabled() {
@@ -78,6 +86,9 @@ public class DefaultAppPrincipal implements Principal {
         String fullName = (StringUtils.hasText(appid) ? appid + "::" : "")
                 + (StringUtils.hasText(account) ? account+"." : "")
                 + (StringUtils.hasText(user) ? user : "");
+        if (!authorities.isEmpty()) {
+            fullName = fullName + "::" + authorities.stream().map(e -> e.getAuthority()).collect(Collectors.joining(","));
+        }
         return fullName;
     }
 

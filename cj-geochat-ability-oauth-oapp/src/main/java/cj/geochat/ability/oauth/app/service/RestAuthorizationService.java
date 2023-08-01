@@ -53,18 +53,18 @@ public class RestAuthorizationService implements OAuth2AuthorizationService {
         }
         obj = (Map<String, Object>) obj.get("data");
         Map<String, Object> userMap = (Map<String, Object>) obj.get("user");
-        DefaultAppPrincipal principal = new DefaultAppPrincipal((String) userMap.get("user"),(String) userMap.get("account"), (String) obj.get("app_id"));
-        principal.setEnabled((Boolean) userMap.get("is_enabled"));
-        principal.setAccountNonExpired((Boolean) userMap.get("is_account_non_expired"));
-        principal.setAccountNonLocked((Boolean) userMap.get("is_account_non_locked"));
-        principal.setCredentialsNonExpire((Boolean) userMap.get("is_credentials_non_expired"));
         DefaultAppAuthenticationDetails appDetails = new DefaultAppAuthenticationDetails(AppType.outsideApp, details);
         String authoritiesSrc = (String) obj.get("authorities");
         String[] authorArr = authoritiesSrc.split(",");
         Collection<? extends GrantedAuthority> authorities = Arrays.stream(authorArr).map(e ->
                 new SimpleGrantedAuthority(e)
         ).collect(Collectors.toSet());
-        var authentication = new DefaultAppAuthentication(principal, appDetails, authorities);
+        DefaultAppPrincipal principal = new DefaultAppPrincipal((String) userMap.get("user"),(String) userMap.get("account"), (String) obj.get("app_id"),authorities);
+        principal.setEnabled((Boolean) userMap.get("is_enabled"));
+        principal.setAccountNonExpired((Boolean) userMap.get("is_account_non_expired"));
+        principal.setAccountNonLocked((Boolean) userMap.get("is_account_non_locked"));
+        principal.setCredentialsNonExpire((Boolean) userMap.get("is_credentials_non_expired"));
+        var authentication = new DefaultAppAuthentication(principal, appDetails);
         return authentication;
     }
 }
