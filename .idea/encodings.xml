@@ -15,7 +15,7 @@
     <file url="file://$PROJECT_DIR$/cj-geochat-ability-oauth-gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/cj-geochat-ability-oauth-iapp/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/cj-geochat-ability-oauth-oapp/src/main/java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/cj-geochat-ability-oauth-redis/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cj-geochat-ability-oauth-server-redis/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/cj-geochat-ability-oauth-server/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/cj-geochat-ability-oauth2-app/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/cj-geochat-ability-oauth2-common/src/main/java" charset="UTF-8" />
