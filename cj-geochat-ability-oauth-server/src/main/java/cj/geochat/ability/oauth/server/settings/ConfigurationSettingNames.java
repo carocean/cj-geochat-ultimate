@@ -70,6 +70,7 @@ public final class ConfigurationSettingNames {
 		 */
 		public static final String TOKEN_REVOCATION_ENDPOINT = AUTHORIZATION_SERVER_SETTINGS_NAMESPACE.concat("token-revocation-endpoint");
 		public static final String CHECK_TOKEN_ENDPOINT = AUTHORIZATION_SERVER_SETTINGS_NAMESPACE.concat("check-token-endpoint");
+		public static final String LOGOUT_ENDPOINT = AUTHORIZATION_SERVER_SETTINGS_NAMESPACE.concat("logout-endpoint");
 
 
 		private AuthorizationServer() {

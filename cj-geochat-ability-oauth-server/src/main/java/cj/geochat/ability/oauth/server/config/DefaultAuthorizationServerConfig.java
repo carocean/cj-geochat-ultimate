@@ -114,6 +114,12 @@ public class DefaultAuthorizationServerConfig {
                                                 .authenticationProvider(new OAuth2RefreshTokenAuthenticationProvider())
 //                                        .authorizationCodeGenerator(new DelegatingOAuth2TokenGenerator(new OAuth2AccessTokenGenerator(), new OAuth2RefreshTokenGenerator()))
                                 )
+                                .logout(Customizer.withDefaults())
+//                                .logout(logoutEndpointConfigurer -> logoutEndpointConfigurer
+//                                                .successHandler()
+////                                        .failureHandler()
+////                                        .logoutService()
+//                                )
                 )
         ;
         List<String> whitelist = properties.getWhitelist();
@@ -124,6 +130,10 @@ public class DefaultAuthorizationServerConfig {
         if (!all.contains("/oauth2/check_token") && !all.contains("/oauth2/v1/check_token")) {
             all.add("/oauth2/check_token");
             all.add("/oauth2/v1/check_token");
+        }
+        if (!all.contains("/oauth2/logout") && !all.contains("/oauth2/v1/logout")) {
+            all.add("/oauth2/logout");
+            all.add("/oauth2/v1/logout");
         }
         http
                 .cors(Customizer.withDefaults())
@@ -136,6 +146,7 @@ public class DefaultAuthorizationServerConfig {
                             .permitAll()
                             .anyRequest().authenticated();
                 })
+                .anonymous(c -> c.disable())
                 .exceptionHandling((exceptions) -> exceptions
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
@@ -158,6 +169,7 @@ public class DefaultAuthorizationServerConfig {
                             response.getWriter().write(new ObjectMapper().writeValueAsString(obj));
                         })
                 )
+                .logout(c -> c.disable())
         ;
 
         return http.build();

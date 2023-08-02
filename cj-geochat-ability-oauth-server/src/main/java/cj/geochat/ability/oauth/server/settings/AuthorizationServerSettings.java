@@ -49,7 +49,9 @@ public final class AuthorizationServerSettings extends AbstractSettings {
     public String getCheckTokenEndpoint() {
         return getSetting(ConfigurationSettingNames.AuthorizationServer.CHECK_TOKEN_ENDPOINT);
     }
-
+    public String getLogoutEndpoint() {
+        return getSetting(ConfigurationSettingNames.AuthorizationServer.LOGOUT_ENDPOINT);
+    }
 
     /**
      * Returns the OAuth 2.0 Token Revocation endpoint. The default is {@code /oauth2/revoke}.
@@ -70,7 +72,9 @@ public final class AuthorizationServerSettings extends AbstractSettings {
                 .authorizationEndpoint("/oauth2/authorize")
                 .tokenEndpoint("/oauth2/token")
                 .checkTokenEndpoint("/oauth2/check_token")
-                .tokenRevocationEndpoint("/oauth2/revoke");
+                .tokenRevocationEndpoint("/oauth2/revoke")
+                .logoutEndpoint("/oauth2/logout")
+                ;
     }
 
     /**
@@ -127,7 +131,9 @@ public final class AuthorizationServerSettings extends AbstractSettings {
         public Builder tokenRevocationEndpoint(String tokenRevocationEndpoint) {
             return setting(ConfigurationSettingNames.AuthorizationServer.TOKEN_REVOCATION_ENDPOINT, tokenRevocationEndpoint);
         }
-
+        public Builder logoutEndpoint(String logoutEndpoint) {
+            return setting(ConfigurationSettingNames.AuthorizationServer.LOGOUT_ENDPOINT, logoutEndpoint);
+        }
         public Builder checkTokenEndpoint(String checkTokenEndpoint) {
             return setting(ConfigurationSettingNames.AuthorizationServer.CHECK_TOKEN_ENDPOINT, checkTokenEndpoint);
         }

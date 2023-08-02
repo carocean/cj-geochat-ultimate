@@ -73,6 +73,7 @@ public class Oauth2ServerConfigurer extends AbstractHttpConfigurer<Oauth2ServerC
         configurers.put(TokenEndpointConfigurer.class, new TokenEndpointConfigurer());
         configurers.put(CheckTokenEndpointConfigurer.class, new CheckTokenEndpointConfigurer());
         configurers.put(OAuth2AppAuthenticationConfigurer.class, new OAuth2AppAuthenticationConfigurer());
+        configurers.put(LogoutEndpointConfigurer.class, new LogoutEndpointConfigurer());
         return configurers;
     }
 
@@ -93,6 +94,11 @@ public class Oauth2ServerConfigurer extends AbstractHttpConfigurer<Oauth2ServerC
 
     public Oauth2ServerConfigurer checkTokenEndpoint(Customizer<CheckTokenEndpointConfigurer> checkTokenEndpointConfigurerCustomizer) {
         checkTokenEndpointConfigurerCustomizer.customize(getConfigurer(CheckTokenEndpointConfigurer.class));
+        return this;
+    }
+
+    public Oauth2ServerConfigurer logout(Customizer<LogoutEndpointConfigurer> logoutEndpointConfigurerCustomizer) {
+        logoutEndpointConfigurerCustomizer.customize(getConfigurer(LogoutEndpointConfigurer.class));
         return this;
     }
 }

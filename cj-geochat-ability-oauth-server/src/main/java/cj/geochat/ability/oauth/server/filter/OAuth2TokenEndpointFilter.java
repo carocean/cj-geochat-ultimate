@@ -19,10 +19,14 @@ import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextHolderStrategy;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.context.RequestAttributeSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.util.Assert;
@@ -43,6 +47,9 @@ public class OAuth2TokenEndpointFilter extends OncePerRequestFilter {
     private static final String DEFAULT_ERROR_URI = "https://datatracker.ietf.org/doc/html/rfc6749#section-5.2";
     private AuthenticationSuccessHandler authenticationSuccessHandler = this::sendAccessTokenResponse;
     private AuthenticationFailureHandler authenticationFailureHandler = this::sendErrorResponse;
+    private SecurityContextHolderStrategy securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy();
+
+    private SecurityContextRepository securityContextRepository = new RequestAttributeSecurityContextRepository();
 
     public OAuth2TokenEndpointFilter(AuthenticationManager authenticationManager) {
         this(authenticationManager, DEFAULT_TOKEN_ENDPOINT_URI);
@@ -79,6 +86,15 @@ public class OAuth2TokenEndpointFilter extends OncePerRequestFilter {
 
             OAuth2AccessTokenAuthenticationToken accessTokenAuthentication =
                     (OAuth2AccessTokenAuthenticationToken) this.authenticationManager.authenticate(authorizationGrantAuthentication);
+
+            SecurityContext context = this.securityContextHolderStrategy.createEmptyContext();
+            context.setAuthentication(accessTokenAuthentication);
+            this.securityContextHolderStrategy.setContext(context);
+            this.securityContextRepository.saveContext(context, request, response);
+            if (this.logger.isDebugEnabled()) {
+                this.logger.debug(LogMessage.format("Set SecurityContextHolder to %s", accessTokenAuthentication));
+            }
+
             this.authenticationSuccessHandler.onAuthenticationSuccess(request, response, accessTokenAuthentication);
         } catch (OAuth2AuthenticationException ex) {
             SecurityContextHolder.clearContext();

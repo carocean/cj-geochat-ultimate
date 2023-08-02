@@ -47,6 +47,9 @@ public class OAuth2CheckTokenEndpointFilter extends OncePerRequestFilter {
         var params = OAuth2EndpointUtils.getParameters(request);
         String token = params.getFirst("token");
         if (!StringUtils.hasText(token)) {
+            token = request.getHeader("token");
+        }
+        if (!StringUtils.hasText(token)) {
             OAuth2Error error = new OAuth2Error(OAuth2ErrorCodes.INVALID_REQUEST, "Missing parameter: token", null);
             throw new OAuth2AuthorizationCodeRequestAuthenticationException(error,null);
         }
