@@ -12,7 +12,7 @@ import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 
 @Configuration
 @ComponentScan(basePackages = "cj.geochat.ability.elasticsearch")
-@ConditionalOnBean({DefaultElasticSearchClientConfig.class})
+//@ConditionalOnBean({DefaultElasticSearchClientConfig.class})
 public class DefaultElasticsearchConfig {
 
     @Autowired(required = false)

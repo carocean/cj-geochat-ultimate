@@ -18,6 +18,7 @@ import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
 import org.apache.http.message.BasicHeader;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
+import org.apache.http.ssl.TrustStrategy;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +45,7 @@ public class DefaultElasticSearchClientConfig {
                 new UsernamePasswordCredentials(properties.getUsername(), properties.getPassword()));
 
         SSLContextBuilder sslBuilder = SSLContexts.custom()
-                .loadTrustMaterial(null, (x509Certificates, s) -> true);
+                .loadTrustMaterial((x509Certificates, s) -> true);
         final SSLContext sslContext = sslBuilder.build();
         List<String> uris = properties.getUris();
         HttpHost[] httpHosts = new HttpHost[uris.size()];
@@ -56,28 +57,17 @@ public class DefaultElasticSearchClientConfig {
         compatibilityHeaders[0] = new BasicHeader("Accept", "application/vnd.elasticsearch+json;compatible-with=7");
         compatibilityHeaders[1] = new BasicHeader("Content-Type", "application/vnd.elasticsearch+json;"
                 + "compatible-with=7");
-        RestClient restClient=RestClient
+        RestClient restClient = RestClient
                 .builder(httpHosts)
                 .setDefaultHeaders(compatibilityHeaders)
 //port number is given as 443 since its https schema
-                .setHttpClientConfigCallback(new RestClientBuilder.HttpClientConfigCallback() {
-                    @Override
-                    public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpClientBuilder) {
-                        return httpClientBuilder
-                                .setSSLContext(sslContext)
-                                .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
-                                .setDefaultCredentialsProvider(credentialsProvider);
-                    }
-                })
-                .setRequestConfigCallback(new RestClientBuilder.RequestConfigCallback() {
-                    @Override
-                    public RequestConfig.Builder customizeRequestConfig(
-                            RequestConfig.Builder requestConfigBuilder) {
-                        return requestConfigBuilder.setConnectTimeout(properties.getConnectionTimeout())
-                                .setSocketTimeout(properties.getSocketTimeout());
-                    }
-                }).build();
-        ElasticsearchTransport transport = new RestClientTransport(restClient,new JacksonJsonpMapper());
+                .setHttpClientConfigCallback(httpClientBuilder -> httpClientBuilder
+                        .setSSLContext(sslContext)
+                        .setSSLHostnameVerifier(NoopHostnameVerifier.INSTANCE)
+                        .setDefaultCredentialsProvider(credentialsProvider))
+                .setRequestConfigCallback(requestConfigBuilder -> requestConfigBuilder.setConnectTimeout(properties.getConnectionTimeout())
+                        .setSocketTimeout(properties.getSocketTimeout())).build();
+        ElasticsearchTransport transport = new RestClientTransport(restClient, new JacksonJsonpMapper());
         ElasticsearchClient client = new ElasticsearchClient(transport);
         return client;
     }
