@@ -11,6 +11,7 @@
     <file url="file://$PROJECT_DIR$/cj-geochat-ability-kafka/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/cj-geochat-ability-kafka/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/cj-geochat-ability-minio/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/cj-geochat-ability-mongodb/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/cj-geochat-ability-mybatis/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/cj-geochat-ability-oauth-gateway/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/cj-geochat-ability-oauth-iapp/src/main/java" charset="UTF-8" />

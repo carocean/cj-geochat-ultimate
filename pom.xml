@@ -49,6 +49,7 @@
         <module>cj-geochat-ability-oauth-iapp</module>
         <module>cj-geochat-ability-oauth-oapp</module>
         <module>cj-geochat-ability-oauth-server-redis</module>
+        <module>cj-geochat-ability-mongodb</module>
     </modules>
     <dependencies>
         <dependency>
