@@ -12,6 +12,12 @@ import cj.geochat.ability.oauth.server.entrypoint.token.OAuth2AuthorizationCodeA
 import cj.geochat.ability.oauth.server.entrypoint.token.OAuth2AuthorizationCodeAuthenticationProvider;
 import cj.geochat.ability.oauth.server.entrypoint.token.refresh.OAuth2RefreshTokenAuthenticationConverter;
 import cj.geochat.ability.oauth.server.entrypoint.token.refresh.OAuth2RefreshTokenAuthenticationProvider;
+import cj.geochat.ability.oauth.server.entrypoint.verifycode.IVerifyCodeProvider;
+import cj.geochat.ability.oauth.server.entrypoint.verifycode.IVerifyCodeService;
+import cj.geochat.ability.oauth.server.login.method.email.EmailCodeAuthenticationConverter;
+import cj.geochat.ability.oauth.server.login.method.email.EmailCodeAuthenticationProvider;
+import cj.geochat.ability.oauth.server.login.method.guest.GuestCodeAuthenticationConverter;
+import cj.geochat.ability.oauth.server.login.method.guest.GuestCodeAuthenticationProvider;
 import cj.geochat.ability.oauth.server.login.method.password.PasswordAuthenticationConverter;
 import cj.geochat.ability.oauth.server.login.method.password.PasswordAuthenticationProvider;
 import cj.geochat.ability.oauth.server.login.method.sms.SmsCodeAuthenticationConverter;
@@ -60,14 +66,19 @@ public class DefaultAuthorizationServerConfig {
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
         UserDetailsService userDetailsService = SecurityBeanUtil.getBean(http, UserDetailsService.class);
         PasswordEncoder passwordEncoder = SecurityBeanUtil.getBean(http, PasswordEncoder.class);
+        IVerifyCodeService verifyCodeService = SecurityBeanUtil.getBean(http, IVerifyCodeService.class);
 
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(http);
         http.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .formLogin(c -> c
                         .loginPage("/v1/login")
                         .defaultAuthenticationConverter(PasswordAuthenticationConverter.class)
+                        .authenticationConverter(new EmailCodeAuthenticationConverter())
+                        .authenticationProvider(new EmailCodeAuthenticationProvider(verifyCodeService, userDetailsService))
+                        .authenticationConverter(new GuestCodeAuthenticationConverter())
+                        .authenticationProvider(new GuestCodeAuthenticationProvider(verifyCodeService, userDetailsService))
                         .authenticationConverter(new SmsCodeAuthenticationConverter())
-                        .authenticationProvider(new SmsCodeAuthenticationProvider(passwordEncoder, userDetailsService))
+                        .authenticationProvider(new SmsCodeAuthenticationProvider(verifyCodeService, userDetailsService))
                         .authenticationConverter(new PasswordAuthenticationConverter())
                         .authenticationProvider(new PasswordAuthenticationProvider(passwordEncoder, userDetailsService))
                         .failureHandler((request, response, exception) -> {
@@ -97,6 +108,13 @@ public class DefaultAuthorizationServerConfig {
 //                                        .sucessHandler()
 //                                        .errorHandler()
 //                                )
+//                                .verificationCodeEndpoint(verificationCodeEndpointConfigurer -> verificationCodeEndpointConfigurer
+//                                        .verifyCodeProvider(null)
+//                                        .verifyCodeRequestResolver(null)
+//                                        .verifyCodeService(null)
+//                                        .successHandler(null)
+//                                        .failureHandler(null)
+//                                )
                                 .authorizationEndpoint(endpointConfigurer -> endpointConfigurer
                                                 .authenticationConverter(new OAuth2AuthorizationCodeRequestAuthenticationConverter())
                                                 .authenticationConverter(new OAuth2AuthorizationConsentAuthenticationConverter())
@@ -122,6 +140,7 @@ public class DefaultAuthorizationServerConfig {
 //                                )
                 )
         ;
+
         List<String> whitelist = properties.getWhitelist();
         List<String> staticlist = properties.getStaticlist();
         List<String> all = new ArrayList<>();
@@ -130,6 +149,10 @@ public class DefaultAuthorizationServerConfig {
         if (!all.contains("/oauth2/check_token") && !all.contains("/oauth2/v1/check_token")) {
             all.add("/oauth2/check_token");
             all.add("/oauth2/v1/check_token");
+        }
+        if (!all.contains("/oauth2/verify_code") && !all.contains("/oauth2/v1/verify_code")) {
+            all.add("/oauth2/verify_code");
+            all.add("/oauth2/v1/verify_code");
         }
         if (!all.contains("/oauth2/logout") && !all.contains("/oauth2/v1/logout")) {
             all.add("/oauth2/logout");

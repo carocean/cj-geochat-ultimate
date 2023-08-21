@@ -1,4 +1,4 @@
-package cj.geochat.ability.oauth.server.login.method.sms;
+package cj.geochat.ability.oauth.server.login.method.guest;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -7,12 +7,12 @@ import org.springframework.util.Assert;
 
 import java.util.Collection;
 
-public class SmsCodeAuthenticationToken extends AbstractAuthenticationToken {
+public class GuestCodeAuthenticationToken extends AbstractAuthenticationToken {
     private final Object principal;
 
     private Object credentials;
 
-    public SmsCodeAuthenticationToken(Object principal, Object credentials) {
+    public GuestCodeAuthenticationToken(Object principal, Object credentials) {
         super(null);
         this.principal = principal;
         this.credentials = credentials;
@@ -29,8 +29,8 @@ public class SmsCodeAuthenticationToken extends AbstractAuthenticationToken {
      * @param credentials
      * @param authorities
      */
-    public SmsCodeAuthenticationToken(Object principal, Object credentials,
-                                      Collection<? extends GrantedAuthority> authorities) {
+    public GuestCodeAuthenticationToken(Object principal, Object credentials,
+                                        Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;
@@ -46,8 +46,8 @@ public class SmsCodeAuthenticationToken extends AbstractAuthenticationToken {
      * @return UsernamePasswordAuthenticationToken with false isAuthenticated() result
      * @since 5.7
      */
-    public static SmsCodeAuthenticationToken unauthenticated(Object principal, Object credentials) {
-        return new SmsCodeAuthenticationToken(principal, credentials);
+    public static GuestCodeAuthenticationToken unauthenticated(Object principal, Object credentials) {
+        return new GuestCodeAuthenticationToken(principal, credentials);
     }
 
     /**
@@ -59,9 +59,9 @@ public class SmsCodeAuthenticationToken extends AbstractAuthenticationToken {
      * @return UsernamePasswordAuthenticationToken with true isAuthenticated() result
      * @since 5.7
      */
-    public static SmsCodeAuthenticationToken authenticated(Object principal, Object credentials,
+    public static GuestCodeAuthenticationToken authenticated(Object principal, Object credentials,
                                                                     Collection<? extends GrantedAuthority> authorities) {
-        return new SmsCodeAuthenticationToken(principal, credentials, authorities);
+        return new GuestCodeAuthenticationToken(principal, credentials, authorities);
     }
 
     @Override

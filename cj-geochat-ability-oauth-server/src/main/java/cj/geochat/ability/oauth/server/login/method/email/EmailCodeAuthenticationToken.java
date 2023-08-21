@@ -1,18 +1,17 @@
-package cj.geochat.ability.oauth.server.login.method.sms;
+package cj.geochat.ability.oauth.server.login.method.email;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.util.Assert;
 
 import java.util.Collection;
 
-public class SmsCodeAuthenticationToken extends AbstractAuthenticationToken {
+public class EmailCodeAuthenticationToken extends AbstractAuthenticationToken {
     private final Object principal;
 
     private Object credentials;
 
-    public SmsCodeAuthenticationToken(Object principal, Object credentials) {
+    public EmailCodeAuthenticationToken(Object principal, Object credentials) {
         super(null);
         this.principal = principal;
         this.credentials = credentials;
@@ -29,8 +28,8 @@ public class SmsCodeAuthenticationToken extends AbstractAuthenticationToken {
      * @param credentials
      * @param authorities
      */
-    public SmsCodeAuthenticationToken(Object principal, Object credentials,
-                                      Collection<? extends GrantedAuthority> authorities) {
+    public EmailCodeAuthenticationToken(Object principal, Object credentials,
+                                        Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
         this.principal = principal;
         this.credentials = credentials;
@@ -46,8 +45,8 @@ public class SmsCodeAuthenticationToken extends AbstractAuthenticationToken {
      * @return UsernamePasswordAuthenticationToken with false isAuthenticated() result
      * @since 5.7
      */
-    public static SmsCodeAuthenticationToken unauthenticated(Object principal, Object credentials) {
-        return new SmsCodeAuthenticationToken(principal, credentials);
+    public static EmailCodeAuthenticationToken unauthenticated(Object principal, Object credentials) {
+        return new EmailCodeAuthenticationToken(principal, credentials);
     }
 
     /**
@@ -59,9 +58,9 @@ public class SmsCodeAuthenticationToken extends AbstractAuthenticationToken {
      * @return UsernamePasswordAuthenticationToken with true isAuthenticated() result
      * @since 5.7
      */
-    public static SmsCodeAuthenticationToken authenticated(Object principal, Object credentials,
-                                                                    Collection<? extends GrantedAuthority> authorities) {
-        return new SmsCodeAuthenticationToken(principal, credentials, authorities);
+    public static EmailCodeAuthenticationToken authenticated(Object principal, Object credentials,
+                                                             Collection<? extends GrantedAuthority> authorities) {
+        return new EmailCodeAuthenticationToken(principal, credentials, authorities);
     }
 
     @Override

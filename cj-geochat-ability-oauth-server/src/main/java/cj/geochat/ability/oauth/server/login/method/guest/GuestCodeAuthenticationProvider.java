@@ -1,4 +1,4 @@
-package cj.geochat.ability.oauth.server.login.method.sms;
+package cj.geochat.ability.oauth.server.login.method.guest;
 
 import cj.geochat.ability.oauth.server.entrypoint.verifycode.IVerifyCodeService;
 import cj.geochat.ability.oauth.server.entrypoint.verifycode.VerifyCodeInfo;
@@ -9,18 +9,18 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
-public class SmsCodeAuthenticationProvider implements AuthenticationProvider {
+public class GuestCodeAuthenticationProvider implements AuthenticationProvider {
     private UserDetailsService userDetailsService;
     private IVerifyCodeService verifyCodeService;
 
-    public SmsCodeAuthenticationProvider(IVerifyCodeService verifyCodeService, UserDetailsService userDetailsService) {
+    public GuestCodeAuthenticationProvider(IVerifyCodeService verifyCodeService, UserDetailsService userDetailsService) {
         this.verifyCodeService = verifyCodeService;
         this.userDetailsService = userDetailsService;
     }
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        SmsCodeAuthenticationToken adminLoginToken = (SmsCodeAuthenticationToken) authentication;
+        GuestCodeAuthenticationToken adminLoginToken = (GuestCodeAuthenticationToken) authentication;
 //        System.out.println("===进入Admin密码登录验证环节====="+ JSON.toJSONString(adminLoginToken));
         UserDetails userDetails = userDetailsService.loadUserByUsername(adminLoginToken.getName());
         //matches方法，前面为明文，后续为加密后密文
@@ -33,13 +33,13 @@ public class SmsCodeAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("Missing verification code. ");
         }
         if (authentication.getCredentials().toString().equals(verifyCodeInfo.getCode())) {
-            return new SmsCodeAuthenticationToken(userDetails, verifyCodeInfo.getCode(), userDetails.getAuthorities());
+            return new GuestCodeAuthenticationToken(userDetails, verifyCodeInfo.getCode(), userDetails.getAuthorities());
         }
         throw new BadCredentialsException("Incorrect username and password. ");
     }
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return SmsCodeAuthenticationToken.class.isAssignableFrom(authentication);
+        return GuestCodeAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }

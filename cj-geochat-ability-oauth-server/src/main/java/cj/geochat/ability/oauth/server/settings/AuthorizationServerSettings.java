@@ -49,6 +49,11 @@ public final class AuthorizationServerSettings extends AbstractSettings {
     public String getCheckTokenEndpoint() {
         return getSetting(ConfigurationSettingNames.AuthorizationServer.CHECK_TOKEN_ENDPOINT);
     }
+
+    public String getVerificationCodeEndpoint() {
+        return getSetting(ConfigurationSettingNames.AuthorizationServer.VERIFICATION_CODE_ENDPOINT);
+    }
+
     public String getLogoutEndpoint() {
         return getSetting(ConfigurationSettingNames.AuthorizationServer.LOGOUT_ENDPOINT);
     }
@@ -72,6 +77,7 @@ public final class AuthorizationServerSettings extends AbstractSettings {
                 .authorizationEndpoint("/oauth2/authorize")
                 .tokenEndpoint("/oauth2/token")
                 .checkTokenEndpoint("/oauth2/check_token")
+                .verificationCodeEndpoint("/oauth2/verify_code")
                 .tokenRevocationEndpoint("/oauth2/revoke")
                 .logoutEndpoint("/oauth2/logout")
                 ;
@@ -137,7 +143,9 @@ public final class AuthorizationServerSettings extends AbstractSettings {
         public Builder checkTokenEndpoint(String checkTokenEndpoint) {
             return setting(ConfigurationSettingNames.AuthorizationServer.CHECK_TOKEN_ENDPOINT, checkTokenEndpoint);
         }
-
+        public Builder verificationCodeEndpoint(String verificationCodeEndpoint) {
+            return setting(ConfigurationSettingNames.AuthorizationServer.VERIFICATION_CODE_ENDPOINT, verificationCodeEndpoint);
+        }
         /**
          * Builds the {@link AuthorizationServerSettings}.
          *

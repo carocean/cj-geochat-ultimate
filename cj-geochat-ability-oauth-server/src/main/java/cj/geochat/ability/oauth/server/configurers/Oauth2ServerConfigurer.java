@@ -48,6 +48,7 @@ public class Oauth2ServerConfigurer extends AbstractHttpConfigurer<Oauth2ServerC
         httpSecurity.addFilterAfter(postProcess(authorizationServerContextFilter), SecurityContextHolderFilter.class);
 
     }
+
     AuthorizationServerSettings getAuthorizationServerSettings(HttpSecurity httpSecurity) {
         AuthorizationServerSettings authorizationServerSettings = httpSecurity.getSharedObject(AuthorizationServerSettings.class);
         if (authorizationServerSettings == null) {
@@ -56,6 +57,7 @@ public class Oauth2ServerConfigurer extends AbstractHttpConfigurer<Oauth2ServerC
         }
         return authorizationServerSettings;
     }
+
     @SuppressWarnings("unchecked")
     private <T> T getConfigurer(Class<T> type) {
         return (T) this.configurers.get(type);
@@ -72,6 +74,7 @@ public class Oauth2ServerConfigurer extends AbstractHttpConfigurer<Oauth2ServerC
         configurers.put(AuthorizationEndpointConfigurer.class, new AuthorizationEndpointConfigurer());
         configurers.put(TokenEndpointConfigurer.class, new TokenEndpointConfigurer());
         configurers.put(CheckTokenEndpointConfigurer.class, new CheckTokenEndpointConfigurer());
+        configurers.put(VerificationCodeEndpointConfigurer.class, new VerificationCodeEndpointConfigurer());
         configurers.put(OAuth2AppAuthenticationConfigurer.class, new OAuth2AppAuthenticationConfigurer());
         configurers.put(LogoutEndpointConfigurer.class, new LogoutEndpointConfigurer());
         return configurers;
@@ -94,6 +97,11 @@ public class Oauth2ServerConfigurer extends AbstractHttpConfigurer<Oauth2ServerC
 
     public Oauth2ServerConfigurer checkTokenEndpoint(Customizer<CheckTokenEndpointConfigurer> checkTokenEndpointConfigurerCustomizer) {
         checkTokenEndpointConfigurerCustomizer.customize(getConfigurer(CheckTokenEndpointConfigurer.class));
+        return this;
+    }
+
+    public Oauth2ServerConfigurer verificationCodeEndpoint(Customizer<VerificationCodeEndpointConfigurer> verificationCodeEndpointConfigurerCustomizer) {
+        verificationCodeEndpointConfigurerCustomizer.customize(getConfigurer(VerificationCodeEndpointConfigurer.class));
         return this;
     }
 
